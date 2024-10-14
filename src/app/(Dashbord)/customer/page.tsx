@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { Search, Plus, ChevronDown, ChevronUp } from 'lucide-react'
 import motion from "framer-motion"
+import Addcustomer from '@/components/AddCustomer'
 
 const customers = [
   { id: '001', name: 'Alice Johnson', email: 'alice@example.com', orders: 5, totalSpent: 750.00 },
@@ -52,7 +53,7 @@ export default function Customers() {
         </div>
         <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center space-x-2">
           <Plus className="h-5 w-5" />
-          <span>New Customer</span>
+      <Addcustomer/>
         </button>
       </div>
       <div className="bg-white rounded-lg shadow overflow-hidden">
