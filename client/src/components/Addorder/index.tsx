@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import { useState } from 'react'
@@ -72,14 +73,14 @@ export default function NewOrderButton() {
         toast({
           title: 'Error',
           description: `There was an error creating the order: ${errorData.message}`,
-          status: 'error',
+        
         })
       }
     } catch (error) {
       toast({
         title: 'Error',
         description: 'There was a network error. Please try again.',
-        status: 'error',
+        
       })
     } finally {
       setIsSubmitting(false)

@@ -1,3 +1,4 @@
+
 export default function Policy() {
     return (
       <div className="space-y-6">

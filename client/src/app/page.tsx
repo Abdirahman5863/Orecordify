@@ -1,7 +1,7 @@
 "use client"
 // pages/index.js
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+
 import {  BarChart2} from 'lucide-react';
 import { Providers } from '@/components/Providers';
 import Appbar from '@/components/Appbar';

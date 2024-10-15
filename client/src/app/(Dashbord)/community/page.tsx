@@ -1,3 +1,4 @@
+
 "use client"
 import { useState } from 'react'
 import { motion } from 'framer-motion'
@@ -11,7 +12,7 @@ const posts = [
 export default function Community() {
   const [newPost, setNewPost] = useState('')
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault()
     // Here you would typically send the new post to your backend
     console.log('New post:', newPost)

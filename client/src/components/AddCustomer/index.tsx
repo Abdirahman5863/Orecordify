@@ -15,7 +15,7 @@ import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 
-import { addcustomerformDatacontrols,intialcustomerFormData,intiallFormData } from "../../../utils";
+import { addcustomerformDatacontrols,intialcustomerFormData } from "../../../utils";
 
 export default function Addcustomer() {
   const [customerformData, setFormData] = useState(intialcustomerFormData);

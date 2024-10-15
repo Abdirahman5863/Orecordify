@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from 'framer-motion'
-import { Users, ShoppingBag, AlertCircle, Settings, ChevronRight } from 'lucide-react'
+import { Users, ShoppingBag, AlertCircle, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
 const stats = [
