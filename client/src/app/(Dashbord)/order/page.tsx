@@ -3,7 +3,7 @@
 "use client"
 
 import { useState } from 'react'
-import { Search, ChevronUp, ChevronDown } from 'lucide-react'
+import { Search, ChevronUp, ChevronDown, PlusCircle } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -14,7 +14,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import NewOrderButton from '@/components/Addorder'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
+import AddOrderDialog from '@/components/Addorder'
 
 const orders = [
   { id: '001', customer: 'Alice Johnson', status: 'completed', date: '2023-05-01', amount: 150.00 },
@@ -31,7 +40,8 @@ export default function OrdersPage() {
 
   const filteredOrders = orders.filter(order =>
     order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customer.toLowerCase().includes(searchTerm.toLowerCase())
+    order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.status.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const sortedOrders = [...filteredOrders].sort((a, b) => {
@@ -49,6 +59,19 @@ export default function OrdersPage() {
     }
   }
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800'
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'canceled':
+        return 'bg-red-100 text-red-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Orders</h1>
@@ -63,7 +86,10 @@ export default function OrdersPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-       <NewOrderButton/>
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          <AddOrderDialog/>
+        </Button>
       </div>
       <div className="overflow-x-auto">
         <Table>
@@ -73,18 +99,18 @@ export default function OrdersPage() {
                 ID {sortColumn === 'id' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
               </TableHead>
               <TableHead className="cursor-pointer" onClick={() => handleSort('customer')}>
-                CUSTOMER {sortColumn === 'customer' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+                Customer {sortColumn === 'customer' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
               </TableHead>
               <TableHead className="cursor-pointer" onClick={() => handleSort('status')}>
-                STATUS {sortColumn === 'status' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+                Status {sortColumn === 'status' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
               </TableHead>
-              <TableHead className="cursor-pointer" onClick={() => handleSort('date')}>
-                DATE {sortColumn === 'date' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+              <TableHead className="hidden md:table-cell cursor-pointer" onClick={() => handleSort('date')}>
+                Date {sortColumn === 'date' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
               </TableHead>
               <TableHead className="text-right cursor-pointer" onClick={() => handleSort('amount')}>
-                AMOUNT {sortColumn === 'amount' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+                Amount {sortColumn === 'amount' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
               </TableHead>
-              <TableHead className="text-right">ACTIONS</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -93,19 +119,28 @@ export default function OrdersPage() {
                 <TableCell className="font-medium">{order.id}</TableCell>
                 <TableCell>{order.customer}</TableCell>
                 <TableCell>
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold
-                    ${order.status === 'completed' ? 'bg-green-100 text-green-800' : 
-                      order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                      'bg-red-100 text-red-800'}`}>
+                  <Badge className={`${getStatusColor(order.status)}`}>
                     {order.status}
-                  </span>
+                  </Badge>
                 </TableCell>
-                <TableCell>{order.date}</TableCell>
+                <TableCell className="hidden md:table-cell">{order.date}</TableCell>
                 <TableCell className="text-right">${order.amount.toFixed(2)}</TableCell>
                 <TableCell className="text-right">
-                  <Button variant="link" className="text-green-600 hover:text-green-800">
-                    View Details
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuItem>View Details</DropdownMenuItem>
+                      <DropdownMenuItem>Update Status</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="text-red-600">Cancel Order</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))}

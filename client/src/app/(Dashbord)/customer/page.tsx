@@ -1,30 +1,46 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-
-
 "use client"
 
 import { useState } from 'react'
-import { Search, Plus, ChevronDown, ChevronUp } from 'lucide-react'
-
-import Addcustomer from '@/components/AddCustomer'
+import { Search, ChevronUp, ChevronDown, UserPlus } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import AddCustomerDialog from '@/components/AddCustomer'
 
 const customers = [
-  { id: '001', name: 'Alice Johnson', email: 'alice@example.com', orders: 5, totalSpent: 750.00 },
-  { id: '002', name: 'Bob Smith', email: 'bob@example.com', orders: 3, totalSpent: 450.50 },
-  { id: '003', name: 'Charlie Brown', email: 'charlie@example.com', orders: 7, totalSpent: 1200.00 },
-  { id: '004', name: 'David Lee', email: 'david@example.com', orders: 2, totalSpent: 300.00 },
-  { id: '005', name: 'Emma Davis', email: 'emma@example.com', orders: 4, totalSpent: 600.00 },
+  { id: '001', name: 'Alice Johnson', email: 'alice@example.com', phone: '123-456-7890', totalOrders: 5, totalSpent: 750.00 },
+  { id: '002', name: 'Bob Smith', email: 'bob@example.com', phone: '234-567-8901', totalOrders: 3, totalSpent: 450.50 },
+  { id: '003', name: 'Charlie Brown', email: 'charlie@example.com', phone: '345-678-9012', totalOrders: 7, totalSpent: 1200.00 },
+  { id: '004', name: 'David Lee', email: 'david@example.com', phone: '456-789-0123', totalOrders: 2, totalSpent: 300.00 },
+  { id: '005', name: 'Emma Davis', email: 'emma@example.com', phone: '567-890-1234', totalOrders: 4, totalSpent: 600.00 },
 ]
 
-export default function Customers() {
+export default function CustomersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [sortColumn, setSortColumn] = useState('id')
-  const [sortDirection, setSortDirection] = useState('asc')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+    customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.phone.includes(searchTerm)
   )
 
   const sortedCustomers = [...filteredCustomers].sort((a, b) => {
@@ -33,7 +49,7 @@ export default function Customers() {
     return 0
   })
 
-  const handleSort = (column) => {
+  const handleSort = (column: string) => {
     if (column === sortColumn) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
     } else {
@@ -43,59 +59,75 @@ export default function Customers() {
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-gray-800">Customers</h1>
-      <div className="flex justify-between items-center">
-        <div className="relative">
-          <input
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Customers</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <Input
             type="text"
             placeholder="Search customers..."
+            className="pl-10 w-full"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
-          <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
         </div>
-        <button className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center space-x-2">
-          <Plus className="h-5 w-5" />
-      <Addcustomer/>
-        </button>
+        <Button>
+          <UserPlus className="mr-2 h-4 w-4" />
+          <AddCustomerDialog/>
+        </Button>
       </div>
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              {['id', 'name', 'email', 'orders', 'totalSpent'].map((column) => (
-                <th
-                  key={column}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                  onClick={() => handleSort(column)}
-                >
-                  <div className="flex items-center space-x-1">
-                    <span>{column === 'totalSpent' ? 'Total Spent' : column.charAt(0).toUpperCase() + column.slice(1)}</span>
-                    {sortColumn === column && (
-                      sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
-                    )}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[100px] cursor-pointer" onClick={() => handleSort('id')}>
+                ID {sortColumn === 'id' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+              </TableHead>
+              <TableHead className="cursor-pointer" onClick={() => handleSort('name')}>
+                Name {sortColumn === 'name' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+              </TableHead>
+              <TableHead className="hidden md:table-cell">Email</TableHead>
+              <TableHead className="hidden lg:table-cell">Phone</TableHead>
+              <TableHead className="text-right cursor-pointer" onClick={() => handleSort('totalOrders')}>
+                Total Orders {sortColumn === 'totalOrders' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+              </TableHead>
+              <TableHead className="text-right cursor-pointer" onClick={() => handleSort('totalSpent')}>
+                Total Spent {sortColumn === 'totalSpent' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+              </TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {sortedCustomers.map((customer) => (
-              <tr
-                className="hover:bg-gray-50"
-                key={customer.id}
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{customer.id}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.email}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{customer.orders}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.totalSpent.toFixed(2)}</td>
-              </tr>
+              <TableRow key={customer.id}>
+                <TableCell className="font-medium">{customer.id}</TableCell>
+                <TableCell>{customer.name}</TableCell>
+                <TableCell className="hidden md:table-cell">{customer.email}</TableCell>
+                <TableCell className="hidden lg:table-cell">{customer.phone}</TableCell>
+                <TableCell className="text-right">{customer.totalOrders}</TableCell>
+                <TableCell className="text-right">${customer.totalSpent.toFixed(2)}</TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuItem>View Details</DropdownMenuItem>
+                      <DropdownMenuItem>Edit Customer</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="text-red-600">Delete Customer</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </div>
   )
