@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ClerkLoaded, ClerkLoading, ClerkProvider } from '@clerk/nextjs'
-import Appbar from "@/components/Appbar";
+
 
 // import { Providers } from "@/components/Providers";
 
