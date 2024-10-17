@@ -22,7 +22,7 @@ export default function Community() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Community</h1>
-      <div className="bg-white shadow rounded-lg p-6">
+      <div className="shadow rounded-lg p-6 ">
         <form onSubmit={handleSubmit} className="mb-6">
           <textarea
             value={newPost}
@@ -47,7 +47,7 @@ export default function Community() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="border-b border-gray-200 pb-4"
+              className="border-b border-gray-200 pb-4 bg-[#F5F5DC]"
             >
               <h3 className="font-semibold">{post.author}</h3>
               <p className="mt-2 text-gray-600">{post.content}</p>

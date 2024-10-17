@@ -22,7 +22,7 @@ const SettingsPage = () => {
   return (
     <div className="p-8 space-y-8">
       {/* General Settings */}
-      <Card>
+      <Card className="bg-[#F5F5DC]">
         <CardHeader>
           <CardTitle>General Settings</CardTitle>
         </CardHeader>
@@ -45,7 +45,7 @@ const SettingsPage = () => {
       </Card>
 
       {/* WhatsApp Integration Settings */}
-      <Card>
+      <Card className="bg-[#F5F5DC]">
         <CardHeader>
           <CardTitle>WhatsApp Integration</CardTitle>
         </CardHeader>
@@ -73,7 +73,7 @@ const SettingsPage = () => {
       </Card>
 
       {/* Application Theme Settings */}
-      <Card>
+      <Card className="bg-[#F5F5DC]" >
         <CardHeader>
           <CardTitle>Theme Settings</CardTitle>
         </CardHeader>

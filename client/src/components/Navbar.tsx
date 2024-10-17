@@ -1,8 +1,9 @@
 
 import React from 'react'
 import Image from 'next/image'
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
 
-import { SigninButton } from './SiginButton'
+// import { SigninButton } from './SiginButton'
  
 
 const Navbar = () => {
@@ -17,8 +18,13 @@ const Navbar = () => {
          <div >
           <Image src={'/bell.png'} alt='logo' width={20} height={20}/>
          </div>
-        <div>
-          <SigninButton/>
+     <div>
+     <SignedOut>
+        <SignInButton />
+      </SignedOut>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
         </div>
       </div>
        </div>

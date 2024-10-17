@@ -3,6 +3,7 @@ import { useSession, signOut, signIn } from "next-auth/react";
 import { User2Icon, LogOutIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { SignInButton } from "@clerk/nextjs";
 
 const Profile = () => {
   const { data: session } = useSession();
@@ -35,12 +36,13 @@ const Profile = () => {
 
   return (
     <div className="flex items-center justify-center h-screen bg-green-500">
-      <Button
+        <SignInButton />
+      {/* <Button
         onClick={() => signIn()}
         className="bg-white text-green-500 px-6 py-2 rounded-md shadow-md"
       >
         Sign In
-      </Button>
+      </Button> */}
     </div>
   );
 };

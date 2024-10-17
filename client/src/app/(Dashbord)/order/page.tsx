@@ -73,7 +73,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 ">
       <h1 className="text-3xl font-bold mb-6">Orders</h1>
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <div className="relative w-full sm:w-64">
@@ -91,7 +91,7 @@ export default function OrdersPage() {
           <AddOrderDialog/>
         </Button>
       </div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto bg-[#F5F5DC]">
         <Table>
           <TableHeader>
             <TableRow>

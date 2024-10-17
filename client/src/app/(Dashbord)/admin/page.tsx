@@ -27,7 +27,7 @@ export default function Dashboard() {
         {stats.map((item) => (
           <motion.div
             key={item.name}
-            className="bg-white rounded-lg shadow-md p-6"
+            className="bg-[#F5F5DC] rounded-lg shadow-md p-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
@@ -45,7 +45,7 @@ export default function Dashboard() {
         {sections.map((section, index) => (
           <motion.div
             key={section.name}
-            className="bg-white rounded-lg shadow-md p-6"
+            className="bg-[#F5F5DC] rounded-lg shadow-md p-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}

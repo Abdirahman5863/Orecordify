@@ -45,13 +45,13 @@ export default function ResponsiveAnalytics() {
   const [timeRange, setTimeRange] = useState('6M')
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8 ">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <h1 className="text-2xl font-bold text-gray-800">Analytics Dashboard</h1>
         <select
           value={timeRange}
           onChange={(e) => setTimeRange(e.target.value)}
-          className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-full sm:w-auto"
+          className="bg-[#F5F5DC] border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-full sm:w-auto"
         >
           <option value="1M">Last Month</option>
           <option value="3M">Last 3 Months</option>
@@ -60,18 +60,20 @@ export default function ResponsiveAnalytics() {
         </select>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4  [&>*]:bg-[#F5F5DC] ">
         <StatCard
           title="Total Revenue"
           value="$47,000"
           change={12.5}
           icon={<DollarSign className="h-6 w-6" />}
+          
+          
         />
         <StatCard
           title="Total Orders"
           value="690"
           change={8.2}
-          icon={<ShoppingCart className="h-6 w-6" />}
+          icon={<ShoppingCart className="h-6 w-6 " />}
         />
         <StatCard
           title="New Customers"
@@ -88,12 +90,12 @@ export default function ResponsiveAnalytics() {
       </div>
 
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
+        <Card className='bg-[#F5F5DC]'>
+           <CardHeader>
             <CardTitle>Revenue Over Time</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px]">
+            <div className="h-[300px] ">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={revenueData}>
                   <XAxis dataKey="month" />
@@ -107,7 +109,7 @@ export default function ResponsiveAnalytics() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className='bg-[#F5F5DC]'>
           <CardHeader>
             <CardTitle>Order Status</CardTitle>
           </CardHeader>
@@ -135,7 +137,7 @@ export default function ResponsiveAnalytics() {
       </div>
 
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        <Card>
+        <Card className='bg-[#F5F5DC]'>
           <CardHeader>
             <CardTitle>Customer Growth</CardTitle>
           </CardHeader>
@@ -155,7 +157,7 @@ export default function ResponsiveAnalytics() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className='bg-[#F5F5DC]'>
           <CardHeader>
             <CardTitle>Top Products</CardTitle>
           </CardHeader>
@@ -187,7 +189,7 @@ function StatCard({ title, value, change, icon }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card>
+      <Card className='bg-[#F5F5DC]'>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
           {icon}

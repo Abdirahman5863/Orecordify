@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 
+.body{
+  background-color:#F5F5DC;
+}
+
 /* Customize the button */
 .clerk-user-button {
   background-color: #1d4ed8; /* Tailwind's 'blue-700' */

@@ -74,14 +74,14 @@ const testimonials = [
 export default function Home() {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
   return (
-    <div className="min-h-screen bg-white">
-         <Appbar/>
+    <div className="min-h-screen">
+        <Appbar/>
       {/* Navbar */}
   
 
       {/* Hero Section */}
       <main>
-        <section className="container mx-auto px-6 py-16 text-center">
+        <section className="container mx-auto px-6 py-16 text-center ">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -109,14 +109,14 @@ export default function Home() {
           </motion.div>
         </section>
 
-        <section className="bg-white py-16">
+        <section className=" py-16">
           <div className="container mx-auto px-6">
             <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {features.map((feature, index) => (
                 <motion.div
                   key={feature.title}
-                  className="bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
+                  className=" bg-[#F5F5DC] p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
                   onHoverStart={() => setHoveredFeature(index)}
                   onHoverEnd={() => setHoveredFeature(null)}
                 >
@@ -135,14 +135,14 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-gray-50 py-16">
+        <section className=" py-16">
           <div className="container mx-auto px-6">
             <h2 className="text-3xl font-bold text-center mb-12">Pricing Plans</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 ">
               {pricingPlans.map((plan, index) => (
                 <motion.div
                   key={plan.name}
-                  className="bg-white rounded-lg shadow-md overflow-hidden"
+                  className=" bg-[#F5F5DC] rounded-lg shadow-md overflow-hidden"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -162,7 +162,7 @@ export default function Home() {
                       ))}
                     </ul>
                   </div>
-                  <div className="p-4 bg-gray-50">
+                  <div className="p-4  bg-[#F5F5DC]">
                     <Link 
                       href="/signup" 
                       className="block text-center bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition duration-300"
@@ -180,20 +180,20 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-white py-16">
+        <section className=" py-16">
           <div className="container mx-auto px-6">
             <h2 className="text-3xl font-bold text-center mb-12">What Our Users Say</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {testimonials.map((testimonial, index) => (
                 <motion.div
                   key={index}
-                  className="bg-gray-50 p-6 rounded-lg shadow-sm"
+                  className=" bg-[#F5F5DC] p-6 rounded-lg shadow-sm"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
                   <div className="flex items-center mb-4">
-                    <Image src={testimonial.image} alt={testimonial.name} width={50} height={50} className="rounded-full mr-4" />
+                    <Image src='/customer.jpeg'alt={testimonial.name} width={50} height={50} className="rounded-full mr-4" />
                     <div>
                       <h3 className="font-semibold">{testimonial.name}</h3>
                       <p className="text-sm text-gray-600">{testimonial.role}</p>
@@ -207,7 +207,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="bg-gray-800 py-8">
+      <footer className="bg-[#3d3d3b] py-8">
         <div className="container mx-auto px-6">
           <div className="flex justify-center space-x-6 mb-4">
             {socialLinks.map((link, index) => (

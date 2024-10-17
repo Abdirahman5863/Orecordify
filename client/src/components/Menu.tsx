@@ -69,15 +69,15 @@ items:[{
 ]
 const Menu = () => {
   return (
-    <div className='mt-4 text-sm h-screen '>
+    <div className='mt-4 text-sm h-screen  '>
       {menuItems.map((item) => (
         <div key={item.title} className='flex flex-col max-sm:gap-14 gap-4 mt-8' >
-          <span className='lg:block hidden text-gray-400 font-bold uppercase my-4 p-2'>{item.title}</span>
+          <span className='lg:block hidden text-green-600 font-bold uppercase my-4 p-2'>{item.title}</span>
           
             {item.items.map((item) => (
               
                  <Link   key={item.label} className='flex gap-4 justify-center  lg:justify-start text-gray-500 p-2 items-center' href={item.href}><Image width={20} height={20} src={item.icon} alt="icon" /> 
-                 <span className='hidden lg:block'>{item.label}</span></Link>
+                 <span className='hidden lg:block text-green-600'>{item.label}</span></Link>
                 
                  ))}
                 

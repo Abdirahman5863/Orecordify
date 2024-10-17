@@ -1,10 +1,11 @@
 import Link from "next/link"
-import { SigninButton } from "./SiginButton"
+// import { SigninButton } from "./SiginButton"
 import Image from "next/image"
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
 
 const Appbar = () =>{
     return(
-        <header className="bg-gray-200 shadow-md py-4">
+        <header className="bg-[#F5F5DC] shadow-md py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-4">
           {/* Logo and name */}
           <div className="flex gap-2 items-center">
@@ -20,7 +21,12 @@ const Appbar = () =>{
 
           {/* Sign In Button */}
           <div className="flex items-center">
-            <SigninButton/>
+          <SignedOut>
+        <SignInButton />
+      </SignedOut>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
           </div>
         </div>
       </header>
