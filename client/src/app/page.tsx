@@ -44,29 +44,29 @@ const pricingPlans = [
 ]
 
 const socialLinks = [
-  { icon: Facebook, href: 'https://www.facebook.com/worecorder' },
-  { icon: Instagram, href: 'https://www.instagram.com/worecorder' },
-  { icon: Youtube, href: 'https://www.youtube.com/worecorder' },
-  { icon: Linkedin, href: 'https://www.linkedin.com/company/worecorder' },
+  { icon: Facebook, href: 'https://www.facebook.com/orecordify' },
+  { icon: Instagram, href: 'https://www.instagram.com/Orecordify' },
+  { icon: Youtube, href: 'https://www.youtube.com/orecordify' },
+  { icon: Linkedin, href: 'https://www.linkedin.com/company/orecordify' },
 ]
 
 const testimonials = [
   {
     name: "John Doe",
     role: "Small Business Owner",
-    content: "WOrecorder has transformed the way we manage our orders. It's intuitive, efficient, and has saved us countless hours.",
+    content: "Orecordify has transformed the way we manage our orders. It's intuitive, efficient, and has saved us countless hours.",
     image: "/placeholder.svg?height=100&width=100"
   },
   {
     name: "Jane Smith",
     role: "E-commerce Manager",
-    content: "The analytics feature in WOrecorder has given us invaluable insights into our business. Highly recommended!",
+    content: "The analytics feature in Orecordify has given us invaluable insights into our business. Highly recommended!",
     image: "/placeholder.svg?height=100&width=100"
   },
   {
     name: "Mike Johnson",
     role: "Startup Founder",
-    content: "As we scaled our business, WOrecorder scaled with us. The customer support is top-notch, always there when we need them.",
+    content: "As we scaled our business, Orecordify scaled with us. The customer support is top-notch, always there when we need them.",
     image: "/placeholder.svg?height=100&width=100"
   }
 ]
@@ -96,7 +96,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl mb-8 text-gray-600"
           >
-            WOrecorder helps you stay on top of your orders with ease and efficiency. Start now and make order management simple.
+          Orecordify helps you stay on top of your orders with ease and efficiency. Start now and make order management simple.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -224,7 +224,7 @@ export default function Home() {
             ))}
           </div>
           <div className="text-center">
-            <p className="text-green-400">&copy; 2024 WOrecorder. All rights reserved.</p>
+            <p className="text-green-400">&copy; 2024 Orecordify. All rights reserved.</p>
           </div>
         </div>
       </footer>

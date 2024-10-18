@@ -2,6 +2,7 @@ import Link from "next/link"
 // import { SigninButton } from "./SiginButton"
 import Image from "next/image"
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
+import { Button } from "./ui/button"
 
 const Appbar = () =>{
     return(
@@ -22,7 +23,8 @@ const Appbar = () =>{
           {/* Sign In Button */}
           <div className="flex items-center">
           <SignedOut>
-        <SignInButton />
+            <Button className="text-white"><SignInButton /></Button>
+        
       </SignedOut>
       <SignedIn>
         <UserButton />
