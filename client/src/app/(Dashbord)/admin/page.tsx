@@ -12,10 +12,10 @@ const stats = [
 ]
 
 const sections = [
-  { name: 'Customer Management', description: 'Manage and view Customers', link: '/customers', linkText: 'Go to Customers' },
-  { name: 'Order Management', description: 'Manage customer orders', link: '/orders', linkText: 'Go to Orders' },
-  { name: 'Settings', description: 'Connect your WhatsApp account', link: '/settings', linkText: 'Go to Settings' },
-  { name: 'Reported Issues', description: 'View reported issues by users', link: '/issues', linkText: 'View Issues' },
+  { name: 'Customer Management', description: 'Manage and view Customers', link: '/customer', linkText: 'Go to Customers' },
+  { name: 'Order Management', description: 'Manage customer orders', link: '/order', linkText: 'Go to Orders' },
+  { name: 'Settings', description: 'Connect your WhatsApp account', link: '/setting', linkText: 'Go to Settings' },
+  { name: 'Reported Issues', description: 'View reported issues by users', link: '/analytics', linkText: 'View Issues' },
 ]
 
 export default function Dashboard() {
