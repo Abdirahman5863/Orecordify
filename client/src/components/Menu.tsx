@@ -59,12 +59,7 @@ items:[{
   label:"privacy poloicy",
   href:"/privacy",
 
-},{
-  icon:"/logout.png",
-  label:"logout",
-  href:"/logout",
-
-}]
+},]
 }
 ]
 const Menu = () => {
