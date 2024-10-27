@@ -1,80 +1,98 @@
-"use client"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client";
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Loader2, Plus } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+import { useState } from 'react';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { toast } from '@/hooks/use-toast'
+} from "@/components/ui/select";
 
+import { Plus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
-const formSchema = z.object({
-  customerName: z.string().min(2, { message: "Customer name must be at least 2 characters." }),
-  productName: z.string().min(2, { message: "Product name must be at least 2 characters." }),
-  quantity: z.coerce.number().min(1, { message: "Quantity must be at least 1." }),
-  price: z.coerce.number().min(0.01, { message: "Price must be greater than 0." }),
-  status: z.enum(["pending", "processing", "shipped", "delivered"]),
-  notes: z.string().optional(),
-})
+interface AddOrderDialogProps {
+  onOrderAdded: () => void;
+  totalOrders: number;
+}
 
-type OrderFormValues = z.infer<typeof formSchema>
+export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDialogProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    customerName: '',
+    productName: '',
+    quantity: '',
+    price: '',
+    status: 'pending',
+    notes: '',
+  });
 
-export default function AddOrderDialog() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const nextOrderNumber = `ORD${String(totalOrders + 1).padStart(4, '0')}`;
 
-  const form = useForm<OrderFormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      customerName: "",
-      productName: "",
-      quantity: 1,
-      price: 0,
-      status: "pending",
-      notes: "",
-    },
-  })
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-  const onSubmit = async (values: OrderFormValues) => {
-    setIsSubmitting(true)
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    console.log(values)
-    setIsSubmitting(false)
-    setIsOpen(false)
-    toast({
-      title: "Order added",
-      description: "The new order has been successfully added.",
-    })
-    form.reset()
-  }
+    try {
+      const response = await fetch('/api/order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          quantity: parseInt(formData.quantity),
+          price: parseFloat(formData.price),
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to create order');
+
+      toast({
+        title: "Success",
+        description: `Order ${nextOrderNumber} created successfully`,
+      });
+
+      setFormData({
+        customerName: '',
+        productName: '',
+        quantity: '',
+        price: '',
+        status: 'pending',
+        notes: '',
+      });
+
+      setIsOpen(false);
+      onOrderAdded();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create order",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -85,127 +103,84 @@ export default function AddOrderDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Order</DialogTitle>
-          <DialogDescription>
-            Enter the details of the new order below.
-          </DialogDescription>
+          <DialogTitle>Add New Order ({nextOrderNumber})</DialogTitle>
         </DialogHeader>
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.2 }}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid w-full gap-1.5">
+            <Label htmlFor="customerName">Customer Name</Label>
+            <Input
+              id="customerName"
+              name="customerName"
+              value={formData.customerName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="grid w-full gap-1.5">
+            <Label htmlFor="productName">Product Name</Label>
+            <Input
+              id="productName"
+              name="productName"
+              value={formData.productName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="grid w-full gap-1.5">
+            <Label htmlFor="quantity">Quantity</Label>
+            <Input
+              id="quantity"
+              name="quantity"
+              type="number"
+              value={formData.quantity}
+              onChange={handleChange}
+              required
+              min="1"
+            />
+          </div>
+          <div className="grid w-full gap-1.5">
+            <Label htmlFor="price">Price</Label>
+            <Input
+              id="price"
+              name="price"
+              type="number"
+              value={formData.price}
+              onChange={handleChange}
+              required
+              min="0"
+              step="0.01"
+            />
+          </div>
+          <div className="grid w-full gap-1.5">
+            <Label htmlFor="status">Status</Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
             >
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="customerName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Customer Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="John Doe" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="productName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Product Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Product XYZ" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="flex space-x-4">
-                    <FormField
-                      control={form.control}
-                      name="quantity"
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormLabel>Quantity</FormLabel>
-                          <FormControl>
-                            <Input type="number" {...field} onChange={(e) => field.onChange(e.target.value)} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="price"
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormLabel>Price</FormLabel>
-                          <FormControl>
-                            <Input type="number" step="0.01" {...field} onChange={(e) => field.onChange(e.target.value)} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Status</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select order status" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="processing">Processing</SelectItem>
-                            <SelectItem value="shipped">Shipped</SelectItem>
-                            <SelectItem value="delivered">Delivered</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="notes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Notes (Optional)</FormLabel>
-                        <FormControl>
-                          <Textarea placeholder="Any additional notes..." {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Adding...
-                      </>
-                    ) : (
-                      'Add Order'
-                    )}
-                  </Button>
-                </form>
-              </Form>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="canceled">Canceled</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid w-full gap-1.5">
+            <Label htmlFor="notes">Notes (Optional)</Label>
+            <Input
+              id="notes"
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+            />
+          </div>
+          <Button type="submit" disabled={isLoading} className="w-full">
+            {isLoading ? "Creating..." : "Create Order"}
+          </Button>
+        </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
