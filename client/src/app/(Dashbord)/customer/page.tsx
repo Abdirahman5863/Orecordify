@@ -1,9 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
-import { useState } from 'react'
-import { Search, ChevronUp, ChevronDown, UserPlus } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Search, ChevronUp, ChevronDown, } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -22,20 +24,68 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useToast } from "@/hooks/use-toast"
 import AddCustomerDialog from '@/components/AddCustomer'
 
-const customers = [
-  { id: '001', name: 'Alice Johnson', email: 'alice@example.com', phone: '123-456-7890', totalOrders: 5, totalSpent: 750.00 },
-  { id: '002', name: 'Bob Smith', email: 'bob@example.com', phone: '234-567-8901', totalOrders: 3, totalSpent: 450.50 },
-  { id: '003', name: 'Charlie Brown', email: 'charlie@example.com', phone: '345-678-9012', totalOrders: 7, totalSpent: 1200.00 },
-  { id: '004', name: 'David Lee', email: 'david@example.com', phone: '456-789-0123', totalOrders: 2, totalSpent: 300.00 },
-  { id: '005', name: 'Emma Davis', email: 'emma@example.com', phone: '567-890-1234', totalOrders: 4, totalSpent: 600.00 },
-]
+interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  totalOrders?: number;
+  totalSpent?: number;
+}
 
 export default function CustomersPage() {
+  const [customers, setCustomers] = useState<Customer[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [sortColumn, setSortColumn] = useState('id')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  const [isLoading, setIsLoading] = useState(true)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    fetchCustomers()
+  }, [])
+
+  const fetchCustomers = async () => {
+    try {
+      const response = await fetch('/api/customer')
+      if (!response.ok) throw new Error('Failed to fetch customers')
+      const data = await response.json()
+      setCustomers(data)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch customers",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDeleteCustomer = async (id: string) => {
+    try {
+      const response = await fetch(`/api/customer?id=${id}`, {
+        method: 'DELETE',
+      })
+      if (!response.ok) throw new Error('Failed to delete customer')
+      
+      toast({
+        title: "Success",
+        description: "Customer deleted successfully",
+      })
+      
+      fetchCustomers()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete customer",
+        variant: "destructive",
+      })
+    }
+  }
 
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -58,8 +108,18 @@ export default function CustomersPage() {
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8 ">
+    <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Customers</h1>
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <div className="relative w-full sm:w-64">
@@ -72,12 +132,9 @@ export default function CustomersPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button>
-          <UserPlus className="mr-2 h-4 w-4" />
-          <AddCustomerDialog/>
-        </Button>
+        <AddCustomerDialog onCustomerAdded={fetchCustomers} />
       </div>
-      <div className="overflow-x-auto bg-[#F5F5DC]">
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
         <Table>
           <TableHeader>
             <TableRow>
@@ -89,12 +146,6 @@ export default function CustomersPage() {
               </TableHead>
               <TableHead className="hidden md:table-cell">Email</TableHead>
               <TableHead className="hidden lg:table-cell">Phone</TableHead>
-              <TableHead className="text-right cursor-pointer" onClick={() => handleSort('totalOrders')}>
-                Total Orders {sortColumn === 'totalOrders' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
-              </TableHead>
-              <TableHead className="text-right cursor-pointer" onClick={() => handleSort('totalSpent')}>
-                Total Spent {sortColumn === 'totalSpent' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
-              </TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -105,8 +156,6 @@ export default function CustomersPage() {
                 <TableCell>{customer.name}</TableCell>
                 <TableCell className="hidden md:table-cell">{customer.email}</TableCell>
                 <TableCell className="hidden lg:table-cell">{customer.phone}</TableCell>
-                <TableCell className="text-right">{customer.totalOrders}</TableCell>
-                <TableCell className="text-right">${customer.totalSpent.toFixed(2)}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -120,7 +169,12 @@ export default function CustomersPage() {
                       <DropdownMenuItem>View Details</DropdownMenuItem>
                       <DropdownMenuItem>Edit Customer</DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600">Delete Customer</DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-red-600"
+                        onClick={() => handleDeleteCustomer(customer.id)}
+                      >
+                        Delete Customer
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

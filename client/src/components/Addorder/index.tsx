@@ -1,27 +1,32 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-"use client";
+"use client"
 
-import { useState } from 'react';
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from 'react'
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast"
+import { Plus } from 'lucide-react'
 
-import { Plus } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+interface Customer {
+  id: string;
+  name: string;
+}
 
 interface AddOrderDialogProps {
   onOrderAdded: () => void;
@@ -29,25 +34,48 @@ interface AddOrderDialogProps {
 }
 
 export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const [isOpen, setIsOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const { toast } = useToast()
   const [formData, setFormData] = useState({
-    customerName: '',
+    customerId: '',
     productName: '',
     quantity: '',
     price: '',
     status: 'pending',
     notes: '',
-  });
+  })
 
-  const nextOrderNumber = `ORD${String(totalOrders + 1).padStart(4, '0')}`;
+  const nextOrderNumber = `OD${String(totalOrders + 1).padStart(4, '0')}`
+
+  useEffect(() => {
+    fetchCustomers()
+  }, [])
+
+  const fetchCustomers = async () => {
+    try {
+      const response = await fetch('/api/customer')
+      if (!response.ok) throw new Error('Failed to fetch customers')
+      const data = await response.json()
+      setCustomers(data)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch customers",
+        variant: "destructive",
+      })
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+    e.preventDefault()
+    setIsLoading(true)
 
     try {
+      const customer = customers.find(c => c.id === formData.customerId)
+      if (!customer) throw new Error('Customer not found')
+
       const response = await fetch('/api/order', {
         method: 'POST',
         headers: {
@@ -55,44 +83,45 @@ export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDi
         },
         body: JSON.stringify({
           ...formData,
+          customerName: customer.name,
           quantity: parseInt(formData.quantity),
           price: parseFloat(formData.price),
         }),
-      });
+      })
 
-      if (!response.ok) throw new Error('Failed to create order');
+      if (!response.ok) throw new Error('Failed to create order')
 
       toast({
         title: "Success",
         description: `Order ${nextOrderNumber} created successfully`,
-      });
+      })
 
       setFormData({
-        customerName: '',
+        customerId: '',
         productName: '',
         quantity: '',
         price: '',
         status: 'pending',
         notes: '',
-      });
+      })
 
-      setIsOpen(false);
-      onOrderAdded();
+      setIsOpen(false)
+      onOrderAdded()
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to create order",
         variant: "destructive",
-      });
+      })
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -107,14 +136,22 @@ export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDi
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid w-full gap-1.5">
-            <Label htmlFor="customerName">Customer Name</Label>
-            <Input
-              id="customerName"
-              name="customerName"
-              value={formData.customerName}
-              onChange={handleChange}
-              required
-            />
+            <Label htmlFor="customerId">Customer</Label>
+            <Select
+              value={formData.customerId}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, customerId: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select customer" />
+              </SelectTrigger>
+              <SelectContent>
+                {customers.map((customer) => (
+                  <SelectItem key={customer.id} value={customer.id}>
+                    {customer.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid w-full gap-1.5">
             <Label htmlFor="productName">Product Name</Label>
@@ -182,5 +219,5 @@ export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDi
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
