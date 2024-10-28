@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { currentUser, auth } from '@clerk/nextjs/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prismaClient';
 
-const prisma = new PrismaClient();
 
 export async function GET() {
   const { userId } = auth();
