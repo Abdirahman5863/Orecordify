@@ -2,12 +2,12 @@
   "name": "alphajade",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "postinstall": "prisma generate",
-    "dev": "next",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+  "scripts": { 
+  "postinstall": "npx prisma generate && npx prisma db push",
+  "dev": "next",
+  "build": "next build",
+  "start": "next start",
+  "lint": "next lint"
   },
   "dependencies": {
     "@clerk/elements": "^0.15.10",
