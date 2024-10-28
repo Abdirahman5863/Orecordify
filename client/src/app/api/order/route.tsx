@@ -2,9 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prismaClient';
 import { getAuth, currentUser } from "@clerk/nextjs/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { userId } = getAuth(request);
+
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const orders = await prisma.order.findMany({
+      where: {
+        user: { clerkId: userId }, },
       include: {
         user: {
           select: {

@@ -7,11 +7,11 @@
 generator client {
   provider = "prisma-client-js"
 }
-
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
 model User {
   id        String   @id @default(uuid()) @map("_id") // Use String type for compatibility with Clerk IDs and add @map("_id") for MongoDB compatibility
   clerkId   String   @unique
