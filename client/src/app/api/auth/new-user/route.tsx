@@ -1,27 +1,29 @@
 import { NextResponse } from 'next/server';
-import { currentUser, auth } from '@clerk/nextjs/server';
-import { prisma } from '@/lib/prismaClient'; // Update this path based on your project structure
+import { auth, currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prismaClient';
 
 export async function GET() {
+  // Retrieve the current user's ID from Clerk authentication
   const { userId } = auth();
-  
+
+  // If the user is not authenticated, return an error response
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   // Get Clerk's current user information
   const user = await currentUser();
-  
+
   if (!user) {
     return NextResponse.json({ error: 'User does not exist' }, { status: 404 });
   }
 
-  // Look for user in your database
+  // Look for the user in your database
   let dbUser = await prisma.user.findUnique({
     where: { id: userId },
   });
-  
-  // If the user is not found, create it in the database
+
+  // If the user is not found, create a new user in the database
   if (!dbUser) {
     dbUser = await prisma.user.create({
       data: {
@@ -33,6 +35,6 @@ export async function GET() {
     });
   }
 
-  // Return the found or created user data as the response
-  return NextResponse.json(dbUser);
+  // Redirect the signed-in user to the /admin page
+  return NextResponse.redirect('https://orecordify-z.vercel.app/admin');
 }
