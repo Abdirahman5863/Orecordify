@@ -10,6 +10,12 @@ const menuItems= [{
 
   },
   {
+    icon:"/user.png",
+    label:"Customer",
+    href:"/customer",
+
+  },
+  {
     icon:"/clipboard.png",
     label:"Order",
     href:"/order",
@@ -21,12 +27,7 @@ const menuItems= [{
   //   href:"/listing",
 
   // },
-  {
-    icon:"/user.png",
-    label:"Customer",
-    href:"/customer",
-
-  },
+ 
   {
     icon:"/data-analytics.png",
     label:"Analytics",
