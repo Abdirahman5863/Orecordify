@@ -2,47 +2,20 @@
 // pages/index.js
 import Link from 'next/link';
 
-import {  BarChart2} from 'lucide-react';
+
 import { Providers } from '@/components/Providers';
 import Appbar from '@/components/Appbar';
 
 
 import { motion } from 'framer-motion'
-import {User, ClipboardList, Bell, Check, Facebook, Instagram, Linkedin, Youtube } from 'lucide-react'
+import { Facebook, Instagram, Linkedin, Youtube } from 'lucide-react'
 
 import Image from 'next/image'
-import { useState } from 'react';
 
-const features = [
-  { icon: ClipboardList, title: 'Order Management', description: 'Easily track and manage all your customer orders in one place.' },
-  { icon: User, title: 'Customer Profiles', description: 'Maintain detailed customer profiles for personalized service.' },
-  { icon: BarChart2, title: 'Analytics Dashboard', description: 'Gain insights with comprehensive analytics and reporting.' },
-  { icon: Bell, title: 'Notifications', description: 'Stay updated with real-time alerts and notifications.' },
-]
+import FeaturesAndPricing from '@/components/features-&-pricing';
 
-const pricingPlans = [
-  { 
-    name: 'Free', 
-    price: '$0', 
-    period: '/month', 
-    features: ['Up to 20 users', 'Basic features', 'Email support'],
-    cta: 'Get Started'
-  },
-  { 
-    name: 'Pro', 
-    price: '$10', 
-    period: '/month/user', 
-    features: ['Unlimited users', 'All features', 'Priority support', 'API access'],
-    cta: 'Start Free Trial'
-  },
-  { 
-    name: 'Enterprise', 
-    price: 'Custom', 
-    period: 'Contact us', 
-    features: ['Custom integrations', 'Dedicated account manager', '24/7 phone support', 'SLA'],
-    cta: 'Contact Sales'
-  },
-]
+
+
 
 const socialLinks = [
   { icon: Facebook, href: 'https://www.facebook.com/orecordify' },
@@ -73,12 +46,12 @@ const testimonials = [
 ]
 
 export default function Home() {
-  const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
+
   return (
     <div className="min-h-screen">
-        <Appbar/>
+      <Appbar />
       {/* Navbar */}
-  
+
 
       {/* Hero Section */}
       <main>
@@ -97,7 +70,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl mb-8 text-gray-600"
           >
-          Orecordify helps you stay on top of your orders with ease and efficiency. Start now and make order management simple.
+            Orecordify helps you stay on top of your orders with ease and efficiency. Start now and make order management simple.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -110,7 +83,7 @@ export default function Home() {
           </motion.div>
         </section>
 
-        <section className=" py-16">
+        {/* <section className=" py-16">
           <div className="container mx-auto px-6">
             <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -134,9 +107,9 @@ export default function Home() {
               ))}
             </div>
           </div>
-        </section>
+        </section> */}
 
-        <section className=" py-16">
+        {/* <section className=" py-16">
           <div className="container mx-auto px-6">
             <h2 className="text-3xl font-bold text-center mb-12">Pricing Plans</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 ">
@@ -179,7 +152,8 @@ export default function Home() {
               <p className="text-lg font-semibold">$120 per year for Pro plan</p>
             </div>
           </div>
-        </section>
+        </section> */}
+        <FeaturesAndPricing />
 
         <section className=" py-16">
           <div className="container mx-auto px-6">
@@ -194,7 +168,7 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
                   <div className="flex items-center mb-4">
-                    <Image src='/customer.jpeg'alt={testimonial.name} width={50} height={50} className="rounded-full mr-4" />
+                    <Image src='/customer.jpeg' alt={testimonial.name} width={50} height={50} className="rounded-full mr-4" />
                     <div>
                       <h3 className="font-semibold">{testimonial.name}</h3>
                       <p className="text-sm text-gray-600">{testimonial.role}</p>
@@ -208,16 +182,16 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="bg-[#3d3d3b] py-8">
+      <footer className="bg-[#fafada] py-8">
         <div className="container mx-auto px-6">
           <div className="flex justify-center space-x-6 mb-4">
             {socialLinks.map((link, index) => (
-              <a 
-                key={index} 
-                href={link.href} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-green-400 hover:text-green-300 transition-colors duration-300"
+              <a
+                key={index}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className=" hover:text-green-300 transition-colors duration-300"
               >
                 <link.icon className="h-6 w-6" />
                 <span className="sr-only">{link.icon.name}</span>
@@ -229,13 +203,13 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    
+
     </div>
   );
 }
-export  const App = () =>{
+export const App = () => {
   <Providers>
-<Home/>
+    <Home />
   </Providers>
 
- }
+}

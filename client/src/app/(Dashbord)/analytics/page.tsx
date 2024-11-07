@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 "use client"
@@ -43,6 +44,17 @@ const productData = [
 
 export default function ResponsiveAnalytics() {
   const [timeRange, setTimeRange] = useState('6M')
+  const [isLoading, setIsLoading] = useState(true)
+  
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 ">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8 ">

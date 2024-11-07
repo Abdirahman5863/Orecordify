@@ -25,21 +25,31 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import AddOrderDialog from '@/components/Addorder';
-import { useToast } from '@/hooks/use-toast';
+import { string } from 'zod';
+// import AddOrderDialog from '@/components/AddOrder';
 
+interface OrderItem {
+  id: string;
+  quantity: number;
+  priceAtTime: number;
+  inventory: {
+    name: string;
+  };
+}
 
 interface Order {
   id: string;
+  orderNumber: string;
   customerName: string;
-  productName: string;
-  quantity: number;
-  price: number;
+  items: OrderItem[];
+  totalAmount: number;
   status: string;
-  notes?: string;
+  paymentStatus: string;
   createdAt: string;
-  user: {
-    firstName: string;
+  customer: {
+    name: string;
     email: string;
   };
 }
@@ -47,7 +57,7 @@ interface Order {
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortColumn, setSortColumn] = useState('id');
+  const [sortColumn, setSortColumn] = useState('orderNumber');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -126,19 +136,26 @@ export default function OrdersPage() {
   };
 
   const filteredOrders = orders.filter(order =>
-    `ORD${String(orders.indexOf(order) + 1).padStart(4, '0')}`.includes(searchTerm.toLowerCase()) ||
+    order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
     order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     order.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const sortedOrders = [...filteredOrders].sort((a, b) => {
     if (sortColumn === 'orderNumber') {
-      const aIndex = orders.indexOf(a) + 1;
-      const bIndex = orders.indexOf(b) + 1;
-      return sortDirection === 'asc' ? aIndex - bIndex : bIndex - aIndex;
+      return sortDirection === 'asc' 
+        ? a.orderNumber.localeCompare(b.orderNumber)
+        : b.orderNumber.localeCompare(a.orderNumber);
     }
-    if (a[sortColumn] < b[sortColumn]) return sortDirection === 'asc' ? -1 : 1;
-    if (a[sortColumn] > b[sortColumn]) return sortDirection === 'asc' ? 1 : -1;
+    if (sortColumn === 'totalAmount') {
+      return sortDirection === 'asc'
+        ? a.totalAmount - b.totalAmount
+        : b.totalAmount - a.totalAmount;
+    }
+    const aValue = a[sortColumn];
+    const bValue = b[sortColumn];
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
     return 0;
   });
 
@@ -200,32 +217,37 @@ export default function OrdersPage() {
               <TableHead className="cursor-pointer" onClick={() => handleSort('customerName')}>
                 Customer {sortColumn === 'customerName' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
               </TableHead>
-              <TableHead>Product</TableHead>
-              <TableHead className="text-center">Quantity</TableHead>
+              <TableHead>Products</TableHead>
               <TableHead className="cursor-pointer" onClick={() => handleSort('status')}>
                 Status {sortColumn === 'status' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
               </TableHead>
-              <TableHead className="text-right cursor-pointer" onClick={() => handleSort('price')}>
-                Price {sortColumn === 'price' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
+              <TableHead className="text-right cursor-pointer" onClick={() => handleSort('totalAmount')}>
+                Total Amount {sortColumn === 'totalAmount' && (sortDirection === 'asc' ? <ChevronUp className="inline" /> : <ChevronDown className="inline" />)}
               </TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedOrders.map((order, index) => (
+            {sortedOrders.map((order) => (
               <TableRow key={order.id}>
                 <TableCell className="font-medium">
-                  ORD{String(orders.indexOf(order) + 1).padStart(4, '0')}
+                  {order.orderNumber}
                 </TableCell>
                 <TableCell>{order.customerName}</TableCell>
-                <TableCell>{order.productName}</TableCell>
-                <TableCell className="text-center">{order.quantity}</TableCell>
+                <TableCell>
+                  {order.items.map((item, index) => (
+                    <div key={item.id}>
+                      {item.inventory.name} (x{item.quantity})
+                      {index < order.items.length - 1 && ', '}
+                    </div>
+                  ))}
+                </TableCell>
                 <TableCell>
                   <Badge className={getStatusColor(order.status)}>
                     {order.status}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right">${order.price.toFixed(2)}</TableCell>
+                <TableCell className="text-right">${order.totalAmount.toFixed(2)}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

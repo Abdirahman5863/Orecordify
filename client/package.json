@@ -2,12 +2,12 @@
   "name": "alphajade",
   "version": "0.1.0",
   "private": true,
-  "scripts": { 
-  "postinstall": "npx prisma generate && npx prisma db push",
-  "dev": "next",
-  "build": "next build",
-  "start": "next start",
-  "lint": "next lint"
+  "scripts": {
+    "postinstall": "npx prisma generate && npx prisma db push",
+    "dev": "next",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@clerk/elements": "^0.15.10",
@@ -19,6 +19,7 @@
     "@next-auth/prisma-adapter": "^1.0.7",
     "@paypal/react-paypal-js": "^8.7.0",
     "@prisma/client": "^5.21.1",
+    "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
@@ -58,7 +59,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.13",
     "postcss": "^8",
-    "prisma": "^5.21.1",
+    "prisma": "^5.22.0",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"

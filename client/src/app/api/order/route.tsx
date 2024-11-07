@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prismaClient';
-import { getAuth, currentUser } from "@clerk/nextjs/server";
+import { getAuth, currentUser } from '@clerk/nextjs/server';
+
+interface OrderRequestBody {
+  customerId: string;
+  customerName: string;
+  status: string;
+  items: {
+    productName: string;
+    quantity: number;
+    price: number;
+  }[];
+  totalAmount: number;
+}
 
 export async function GET(request: NextRequest) {
   const { userId } = getAuth(request);
@@ -8,15 +20,17 @@ export async function GET(request: NextRequest) {
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
   try {
     const orders = await prisma.order.findMany({
       where: {
-        user: { clerkId: userId }, },
+        user: { clerkId: userId },
+      },
       include: {
-        user: {
-          select: {
-            firstName: true,
-            email: true,
+        customer: true,
+        items: {
+          include: {
+            inventory: true,
           },
         },
       },
@@ -30,33 +44,30 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const { userId } = getAuth(request);
-  const { customerName, productName, quantity, price, status, notes } = await request.json() as {
-    customerName: string;
-    productName: string;
-    quantity: number;
-    price: number;
-    status: string;
-    notes?: string;
-  };
 
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    // Ensure the user exists in the database
+    const body = await request.json() as OrderRequestBody;
+    const { customerId, customerName, status, items, totalAmount } = body;
+
+    if (!customerId) {
+      return NextResponse.json({ error: 'Customer ID is required' }, { status: 400 });
+    }
+
     let dbUser = await prisma.user.findUnique({
       where: { clerkId: userId },
     });
 
     if (!dbUser) {
-      // Fetch Clerk user details if the user does not exist
       const user = await currentUser();
       if (!user) throw new Error('User not found in Clerk');
-      
+
       dbUser = await prisma.user.create({
         data: {
-          clerkId: user.id,
+          clerkId: userId,
           firstName: user.firstName || '',
           lastName: user.lastName || '',
           email: user.emailAddresses[0]?.emailAddress || '',
@@ -64,15 +75,52 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const customer = await prisma.customer.upsert({
+      where: { id: customerId },
+      update: {},
+      create: {
+        name: customerName,
+        email: "",  // Set to the actual email if required
+        phone: "",  // Set to the actual phone if required
+      },
+    });
+
+    const orderCount = await prisma.order.count();
+    const orderNumber = `OD${String(orderCount + 1).padStart(4, '0')}`;
+
     const newOrder = await prisma.order.create({
       data: {
+        orderNumber,
         customerName,
-        productName,
-        quantity,
-        price,
+        customerId: customer.id,
+        totalAmount,
         status,
-        notes,
-        user: { connect: { id: dbUser.id } },
+        paymentStatus: 'pending',
+        userId: dbUser.id,
+        items: {
+          create: items.map(item => ({
+            quantity: item.quantity,
+            priceAtTime: item.price,
+            inventory: {
+              create: {
+                name: item.productName,
+                sku: `SKU${Date.now()}`,
+                category: 'default',
+                quantity: item.quantity,
+                price: item.price,
+                userId: dbUser.id,
+              },
+            },
+          })),
+        },
+      },
+      include: {
+        items: {
+          include: {
+            inventory: true,
+          },
+        },
+        customer: true,
       },
     });
 
@@ -84,21 +132,26 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const { userId } = getAuth(request);
+
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
-    const body = await request.json() as { id: string } & Partial<{
-      customerName: string;
-      productName: string;
-      quantity: number;
-      price: number;
-      status: string;
-      notes?: string;
-    }>;
-    
-    const { id, ...updateData } = body;
+    const { id, status } = await request.json() as { id: string; status: string };
 
     const updatedOrder = await prisma.order.update({
       where: { id },
-      data: updateData,
+      data: { status },
+      include: {
+        items: {
+          include: {
+            inventory: true,
+          },
+        },
+        customer: true,
+      },
     });
 
     return NextResponse.json(updatedOrder);
@@ -109,6 +162,12 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const { userId } = getAuth(request);
+
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
@@ -116,6 +175,15 @@ export async function DELETE(request: NextRequest) {
     if (!id) {
       return NextResponse.json({ error: 'Order ID is required' }, { status: 400 });
     }
+
+    const existingOrder = await prisma.order.findUnique({ where: { id } });
+    if (!existingOrder) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    await prisma.orderItem.deleteMany({
+      where: { orderId: id },
+    });
 
     await prisma.order.delete({
       where: { id },

@@ -35,7 +35,12 @@ const menuItems= [{
 
   },
   
- 
+  {
+    icon:"/inven.png",
+    label:"Inventory",
+    href:"/inventory",
+
+  },
  
   
  
@@ -50,9 +55,9 @@ const menuItems= [{
 {
 title:"others",
 items:[{
-  icon:"/community.png",
-  label:"community",
-  href:"/community",
+  icon:"/note.png",
+  label:"note",
+  href:"/note",
 
 },
 {

@@ -1,68 +1,137 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
+
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(uuid()) @map("_id") // Use String type for compatibility with Clerk IDs and add @map("_id") for MongoDB compatibility
-  clerkId   String   @unique
-  firstName String?
-  lastName  String?
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
-  posts     Post[]   
+  id              String    @id @default(uuid()) @map("_id")
+  clerkId         String    @unique
+  firstName       String?
+  lastName        String?
+  email           String    @unique
+  subscription    Subscription?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  orders          Order[]
+  notes           Note[]
+  inventoryItems  InventoryItem[]
+}
+
+model Subscription {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id])
+  status          String    // active, trialing, canceled
+  ordersUsed      Int       @default(0)
+  trialEndsAt     DateTime?
+  currentPeriodEnd DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model Order {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  customerName String
-  productName  String
-  quantity     Int
-  price        Float
-  status       String
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  user         User     @relation(fields: [userId], references: [id])
-  userId       String   // Ensure this is set to @db.ObjectId
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber   String    @unique
+  customerName  String
+  customer      Customer  @relation(fields: [customerId], references: [id])
+  customerId    String    @db.ObjectId
+  items         OrderItem[]
+  totalAmount   Float
+  status        String
+  notes         Note[]
+  paymentStatus String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  user          User?     @relation(fields: [userId], references: [id])
+  userId        String?   // Change to optional if needed
 }
-model Post {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  content   String
-  likes     Int      @default(0)
-  comments  Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String   
+
+
+model OrderItem {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  order         Order         @relation(fields: [orderId], references: [id])
+  orderId       String        @db.ObjectId
+  inventory     InventoryItem @relation(fields: [inventoryId], references: [id])
+  inventoryId   String        @db.ObjectId
+  quantity      Int
+  priceAtTime   Float
+  createdAt     DateTime      @default(now())
 }
 
 model Customer {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String
-  email       String   @unique
+  email       String    @unique
   phone       String
-  totalOrders Int      @default(0)
-  totalSpent  Float    @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  orders      Order[]
+  notes       Note[]
+  totalOrders Int       @default(0)
+  totalSpent  Float     @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model InventoryItem {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  sku         String      @unique
+  description String?
+  category    String
+  quantity    Int
+  price       Float
+  reorderPoint Int        @default(10)
+  orderItems  OrderItem[]
+  notes       Note[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  user        User        @relation(fields: [userId], references: [id])
+  userId      String
+}
+
+model Note {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  content       String
+  type          String       // general, customer, order, inventory
+  priority      String?      // low, medium, high
+  status        String       // active, archived
+  customerId    String?      @db.ObjectId
+  customer      Customer?    @relation(fields: [customerId], references: [id])
+  orderId       String?      @db.ObjectId
+  order         Order?       @relation(fields: [orderId], references: [id])
+  inventoryId   String?      @db.ObjectId
+  inventory     InventoryItem? @relation(fields: [inventoryId], references: [id])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  user          User         @relation(fields: [userId], references: [id])
+  userId        String
+}
+
+model Analytics {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  date            DateTime  @unique
+  totalOrders     Int       @default(0)
+  totalRevenue    Float     @default(0)
+  newCustomers    Int       @default(0)
+  topProducts     Json?     // Store top selling products data
+  inventoryAlerts Json?     // Store low stock alerts
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
 
 model Setting {
   id                    String   @id @default(auto()) @map("_id") @db.ObjectId
   notificationsEnabled  Boolean  @default(false)
-  whatsappConnected     Boolean  @default(false)
-  theme                 String   @default("light")
-  updatedAt             DateTime @updatedAt
+  whatsappConnected    Boolean  @default(false)
+  theme                String   @default("light")
+  lowStockThreshold    Int      @default(10)
+  currency             String   @default("USD")
+  updatedAt            DateTime @updatedAt
 }
