@@ -1,17 +1,15 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  directUrl         = env("DIRECT_URL")
+}
 
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
-}
-
 model User {
-  id              String    @id @default(uuid()) @map("_id")
+  id              String    @id @default(uuid())
   clerkId         String    @unique
   firstName       String?
   lastName        String?
@@ -22,10 +20,11 @@ model User {
   orders          Order[]
   notes           Note[]
   inventoryItems  InventoryItem[]
+  customers       Customer[]
 }
 
 model Subscription {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  id              String    @id @default(uuid())
   userId          String    @unique
   user            User      @relation(fields: [userId], references: [id])
   status          String    // active, trialing, canceled
@@ -37,11 +36,11 @@ model Subscription {
 }
 
 model Order {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  id            String    @id @default(uuid())
   orderNumber   String    @unique
   customerName  String
   customer      Customer  @relation(fields: [customerId], references: [id])
-  customerId    String    @db.ObjectId
+  customerId    String
   items         OrderItem[]
   totalAmount   Float
   status        String
@@ -49,24 +48,23 @@ model Order {
   paymentStatus String
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  user          User?     @relation(fields: [userId], references: [id])
-  userId        String?   // Change to optional if needed
+  user          User      @relation(fields: [userId], references: [id])
+  userId        String
 }
 
-
 model OrderItem {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  id            String        @id @default(uuid())
   order         Order         @relation(fields: [orderId], references: [id])
-  orderId       String        @db.ObjectId
+  orderId       String
   inventory     InventoryItem @relation(fields: [inventoryId], references: [id])
-  inventoryId   String        @db.ObjectId
+  inventoryId   String
   quantity      Int
   priceAtTime   Float
   createdAt     DateTime      @default(now())
 }
 
 model Customer {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  id          String    @id @default(uuid())
   name        String
   email       String    @unique
   phone       String
@@ -76,10 +74,12 @@ model Customer {
   totalSpent  Float     @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
 }
 
 model InventoryItem {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  id          String      @id @default(uuid())
   name        String
   sku         String      @unique
   description String?
@@ -96,17 +96,17 @@ model InventoryItem {
 }
 
 model Note {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  id            String        @id @default(uuid())
   title         String
   content       String
   type          String       // general, customer, order, inventory
   priority      String?      // low, medium, high
   status        String       // active, archived
-  customerId    String?      @db.ObjectId
+  customerId    String?
   customer      Customer?    @relation(fields: [customerId], references: [id])
-  orderId       String?      @db.ObjectId
+  orderId       String?
   order         Order?       @relation(fields: [orderId], references: [id])
-  inventoryId   String?      @db.ObjectId
+  inventoryId   String?
   inventory     InventoryItem? @relation(fields: [inventoryId], references: [id])
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
@@ -115,7 +115,7 @@ model Note {
 }
 
 model Analytics {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  id              String    @id @default(uuid())
   date            DateTime  @unique
   totalOrders     Int       @default(0)
   totalRevenue    Float     @default(0)
@@ -123,15 +123,15 @@ model Analytics {
   topProducts     Json?     // Store top selling products data
   inventoryAlerts Json?     // Store low stock alerts
   createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  updatedAt       DateTime  @default(now())
 }
 
 model Setting {
-  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  id                    String   @id @default(uuid())
   notificationsEnabled  Boolean  @default(false)
-  whatsappConnected    Boolean  @default(false)
-  theme                String   @default("light")
-  lowStockThreshold    Int      @default(10)
-  currency             String   @default("USD")
-  updatedAt            DateTime @updatedAt
+  whatsappConnected     Boolean  @default(false)
+  theme                 String   @default("light")
+  lowStockThreshold     Int      @default(10)
+  currency              String   @default("USD")
+  updatedAt             DateTime @updatedAt
 }

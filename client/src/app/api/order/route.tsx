@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prismaClient';
+import  prisma  from '@/lib/prismaClient';
 import { getAuth, currentUser } from '@clerk/nextjs/server';
 
 interface OrderRequestBody {
@@ -81,7 +81,8 @@ export async function POST(request: NextRequest) {
       create: {
         name: customerName,
         email: "",  // Set to the actual email if required
-        phone: "",  // Set to the actual phone if required
+        phone: "",
+        userId: dbUser.id  // Set to the actual phone if required
       },
     });
 

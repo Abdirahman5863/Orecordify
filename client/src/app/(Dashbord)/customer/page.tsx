@@ -4,10 +4,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
-import { useState, useEffect } from 'react'
-import { Search, ChevronUp, ChevronDown, } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+
+// Define the Customer interface
+
+// Updated fetchCustomers function with TypeScript
+import { useState, useEffect } from 'react';
+import { Search, ChevronUp, ChevronDown } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -15,7 +19,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,9 +27,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useToast } from "@/hooks/use-toast"
-import AddCustomerDialog from '@/components/AddCustomer'
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
+import AddCustomerDialog from '@/components/AddCustomer';
 
 interface Customer {
   id: string;
@@ -37,76 +41,79 @@ interface Customer {
 }
 
 export default function CustomersPage() {
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [sortColumn, setSortColumn] = useState('id')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
-  const [isLoading, setIsLoading] = useState(true)
-  const { toast } = useToast()
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [sortColumn, setSortColumn] = useState<string>('id');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [isLoading, setIsLoading] = useState<boolean>(true); // Define isLoading and setIsLoading here
+  const { toast } = useToast();
 
   useEffect(() => {
-    fetchCustomers()
-  }, [])
+    fetchCustomers();
+  }, []);
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch('/api/customer')
-      if (!response.ok) throw new Error('Failed to fetch customers')
-      const data = await response.json()
-      setCustomers(data)
+      const response = await fetch('/api/customer');
+      if (!response.ok) throw new Error('Failed to fetch customers');
+      const data: Customer[] = await response.json();
+      console.log('Fetched customers:', data); // Log data here
+      setCustomers(data);
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to fetch customers",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+  
 
   const handleDeleteCustomer = async (id: string) => {
     try {
       const response = await fetch(`/api/customer?id=${id}`, {
         method: 'DELETE',
-      })
-      if (!response.ok) throw new Error('Failed to delete customer')
+      });
+
+      if (!response.ok) throw new Error('Failed to delete customer');
       
       toast({
         title: "Success",
         description: "Customer deleted successfully",
-      })
+      });
       
-      fetchCustomers()
+      fetchCustomers();  // Re-fetch the list after deletion
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to delete customer",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     customer.phone.includes(searchTerm)
-  )
+  );
 
   const sortedCustomers = [...filteredCustomers].sort((a, b) => {
-    if (a[sortColumn] < b[sortColumn]) return sortDirection === 'asc' ? -1 : 1
-    if (a[sortColumn] > b[sortColumn]) return sortDirection === 'asc' ? 1 : -1
-    return 0
-  })
+    if (a[sortColumn] < b[sortColumn]) return sortDirection === 'asc' ? -1 : 1;
+    if (a[sortColumn] > b[sortColumn]) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   const handleSort = (column: string) => {
     if (column === sortColumn) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      setSortColumn(column)
-      setSortDirection('asc')
+      setSortColumn(column);
+      setSortDirection('asc');
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -115,7 +122,7 @@ export default function CustomersPage() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -132,7 +139,7 @@ export default function CustomersPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <AddCustomerDialog onCustomerAdded={fetchCustomers} />
+        <AddCustomerDialog onCustomerAdded={fetchCustomers} /> {/* Ensure this triggers re-fetch */}
       </div>
       <div className="overflow-x-auto bg-[#F5F5DC] rounded-lg shadow">
         <Table>
@@ -184,5 +191,5 @@ export default function CustomersPage() {
         </Table>
       </div>
     </div>
-  )
+  );
 }
