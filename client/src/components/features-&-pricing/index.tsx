@@ -36,7 +36,7 @@ const features = [
   {
     title: "Notes Board",
     description: "Write your own notes or diary ",
-    image: "/notice.png"
+    image: "/notion.png"
   }
 ]
 export default function FeaturesAndPricing() {
