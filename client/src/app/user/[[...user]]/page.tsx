@@ -1,8 +1,8 @@
-import { SignIn } from '@clerk/nextjs'
+import {  UserProfile } from '@clerk/nextjs'
 
 export default function Page() {
   return <div className='flex justify-center items-center bg-[#bebfc0] h-screen'>
-    <SignIn 
+    <UserProfile
       appearance={{
         elements: {
     

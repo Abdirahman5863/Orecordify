@@ -20,7 +20,8 @@ const Navbar = () => {
         <SignInButton />
       </SignedOut>
       <SignedIn>
-        <UserButton />
+        <UserButton 
+        />
       </SignedIn>
         </div>
       </div>
