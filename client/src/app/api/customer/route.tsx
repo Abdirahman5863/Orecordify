@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prismaClient';
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth, currentUser } from '@clerk/nextjs/server';
+import { getAuth, currentUser, auth } from '@clerk/nextjs/server';
 
 // GET route to fetch customers
 export async function GET(request: NextRequest) {
@@ -30,10 +30,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST route to create a new customer
+// POST route to create a new customer with custom ID format
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = getAuth(request);
+    const { userId } = auth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -51,21 +51,23 @@ export async function POST(request: NextRequest) {
       dbUser = await prisma.user.create({
         data: {
           clerkId: userId,
-          firstName: user.firstName || '',
-          lastName: user.lastName || '',
-          email: user.emailAddresses[0]?.emailAddress || '',
+          firstName: user.firstName ?? '',
+          lastName: user.lastName ?? '',
+          email: user.emailAddresses[0]?.emailAddress ?? '',
         },
       });
     }
 
-    // Get the count of existing customers to generate the next ID
+    const body = await request.json() as { name: string; email: string; phone: string };
+    const { name, email, phone } = body;
+
+    // Get the count of existing customers for this user
     const customerCount = await prisma.customer.count({
       where: { userId: dbUser.id },
     });
-    const customerId = `CUST-${String(customerCount + 1).padStart(3, '0')}`;
 
-    const body = await request.json();
-    const { name, email, phone } = body;
+    // Format the new customer ID with the next number in sequence, padded with zeros
+    const customerId = `CUST-${String(customerCount + 1).padStart(4, '0')}`;
 
     const newCustomer = await prisma.customer.create({
       data: {

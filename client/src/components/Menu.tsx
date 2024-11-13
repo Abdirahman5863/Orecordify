@@ -41,25 +41,26 @@ const menuItems= [{
     href:"/inventory",
 
   },
- 
+  {
+    icon:"/note.png",
+    label:"note",
+    href:"/note",
+  
+  },
   
  
+ 
+ 
+]},
+{
+title:"others",
+items:[
   {
     icon:"/settings.png",
     label:"Setting",
     href:"/setting",
 
   },
- 
-]},
-{
-title:"others",
-items:[{
-  icon:"/note.png",
-  label:"note",
-  href:"/note",
-
-},
 {
   icon:"/encryption.png",
   label:"privacy poloicy",
