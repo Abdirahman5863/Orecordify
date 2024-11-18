@@ -20,7 +20,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "Orecordify",
-  description: "Manage seamlesly Your Oders and Customers with Orcordify",
+  description: "BEST SMALL TO MEDIUM BUSINESSES PRODUCTIVITY APPLICATION",
 };
 
 export default function RootLayout({

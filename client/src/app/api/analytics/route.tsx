@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import prisma  from '@/lib/prismaClient';
+import {prisma}  from '@/lib/prismaClient';
 import { getAuth } from "@clerk/nextjs/server";
 
 export async function GET(request: NextRequest) {

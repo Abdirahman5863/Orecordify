@@ -29,7 +29,7 @@ export default function NotesPage() {
 
   const fetchNotes = async () => {
     try {
-      const response = await fetch('/api/notes');
+      const response = await fetch('/api/note');
       if (!response.ok) throw new Error('Failed to fetch notes');
       const data = await response.json();
       setNotes(data);

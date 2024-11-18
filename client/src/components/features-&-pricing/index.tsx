@@ -74,8 +74,8 @@ export default function FeaturesAndPricing() {
           </motion.div>
         ))}
       </div>
-
-      <h2 className="text-3xl font-bold text-center mb-12">Pricing</h2>
+      </div>)}
+      {/* <h2 className="text-3xl font-bold text-center mb-12">Pricing</h2>
       <div className="flex justify-center">
         <Card className="w-full max-w-md bg-[#F5F5DC]">
           <CardHeader>
@@ -130,4 +130,4 @@ export default function FeaturesAndPricing() {
       </div>
     </div>
   )
-}
+} */}

@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
-
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -41,7 +38,20 @@ export default function CreateNoteDialog({ onNoteCreated }: CreateNoteDialogProp
     setIsLoading(true);
 
     try {
-      await onNoteCreated(formData);
+      const response = await fetch('/api/note', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create note');
+      }
+
+      const newNote = await response.json();
+      await onNoteCreated(newNote);
       setFormData({
         title: '',
         content: '',
@@ -49,6 +59,8 @@ export default function CreateNoteDialog({ onNoteCreated }: CreateNoteDialogProp
         priority: 'medium',
       });
       setIsOpen(false);
+    } catch (error) {
+      console.error('Error creating note:', error);
     } finally {
       setIsLoading(false);
     }

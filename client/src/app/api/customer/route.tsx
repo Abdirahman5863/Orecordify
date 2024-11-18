@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prismaClient';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth, currentUser } from '@clerk/nextjs/server';
-import { v4 as uuidv4 } from 'uuid';
+
 
 // GET route to fetch customers
 export async function GET(request: NextRequest) {
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
 
+
       dbUser = await prisma.user.create({
         data: {
           clerkId: userId,
@@ -64,11 +65,13 @@ export async function POST(request: NextRequest) {
     const { name, email, phone } = body;
 
     // Generate a unique customer ID
-    const customerId = `CUST-${dbUser.id.slice(0, 8)}-${uuidv4().slice(0, 8)}`;
+    // const customerId = `CUST-${dbUser.id.slice(0, 8)}-${uuidv4().slice(0, 8)}`;
+    const customerCount = await prisma.customer.count();
+    const customerNumber = `CUST${String(customerCount + 1).padStart(3 , '0')}`;
 
     const newCustomer = await prisma.customer.create({
       data: {
-        id: customerId,
+        id: customerNumber,
         name,
         email,
         phone,

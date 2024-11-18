@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { Edit2, Trash2,} from 'lucide-react';
+import { Edit2, Trash2, } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +19,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-// import EditNoteDialog from './EditNoteDialog';
 import { Note } from '@/types/note';
 import EditNoteDialog from './EditNoteDialog';
 
@@ -55,6 +54,46 @@ export default function NoteCard({ note, onUpdate, onDelete }: NoteCardProps) {
         return 'bg-orange-100 text-orange-800';
       default:
         return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/note?id=${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete note');
+      }
+
+      await onDelete(id);
+    } catch (error) {
+      console.error('Error deleting note:', error);
+    }
+  };
+
+  const handleUpdate = async (id: string, data: any) => {
+    try {
+      const response = await fetch(`/api/note/${id}.ts`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update note');
+      }
+
+      const updatedNote = await response.json();
+      await onUpdate(id, updatedNote);
+    } catch (error) {
+      console.error('Error updating note:', error);
     }
   };
 
@@ -113,7 +152,7 @@ export default function NoteCard({ note, onUpdate, onDelete }: NoteCardProps) {
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={() => onDelete(note.id)}
+                    onClick={() => handleDelete(note.id)}
                     className="bg-red-500 hover:bg-red-600"
                   >
                     Delete
@@ -129,7 +168,7 @@ export default function NoteCard({ note, onUpdate, onDelete }: NoteCardProps) {
         note={note}
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
-        onUpdate={onUpdate}
+        onUpdate={handleUpdate}
       />
     </motion.div>
   );

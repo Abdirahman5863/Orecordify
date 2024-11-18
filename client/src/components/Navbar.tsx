@@ -2,6 +2,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
+import Link from 'next/link'
 
 // import { SigninButton } from './SiginButton'
  
@@ -12,15 +13,16 @@ const Navbar = () => {
       {/* search bar */}
     
       <div className='flex gap-6  items-center justify-end w-full'>
-         <div >
-          <Image src={'/bell.png'} alt='logo' width={20} height={20}/>
-         </div>
+         <Link href='/support' >
+          <Image src={'/support.png'} alt='logo' width={30} height={30}/>
+         </Link>
      <div>
      <SignedOut>
         <SignInButton />
       </SignedOut>
       <SignedIn>
         <UserButton 
+  
         />
       </SignedIn>
         </div>
