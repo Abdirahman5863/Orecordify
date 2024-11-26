@@ -22,18 +22,21 @@ interface AnalyticsData {
     canceled: number;
   };
   topProducts: Array<{ name: string; sales: number; }>;
-  revenueData: Array<{ month: string; revenue: number; }>;
-  customerData: Array<{ month: string; newCustomers: number; }>;
+  revenueData: Array<{ timestamp: string; revenue: number; }>;
+  customerData: Array<{ timestamp: string; newCustomers: number; }>;
 }
 
 export default function AnalyticsDashboard() {
-  const [timeRange, setTimeRange] = useState('6M');
+  const [timeRange, setTimeRange] = useState('1D');
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<AnalyticsData | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchAnalytics();
+    // Set up polling for real-time updates
+    const interval = setInterval(fetchAnalytics, 30000); // Update every 30 seconds
+    return () => clearInterval(interval);
   }, [timeRange]);
 
   const fetchAnalytics = async () => {
@@ -53,6 +56,22 @@ export default function AnalyticsDashboard() {
     }
   };
 
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    switch (timeRange) {
+      case '1D':
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      case '7D':
+        return date.toLocaleDateString([], { weekday: 'short' });
+      case '1M':
+        return date.toLocaleDateString([], { day: '2-digit', month: 'short' });
+      case '1Y':
+        return date.toLocaleDateString([], { month: 'short' });
+      default:
+        return date.toLocaleDateString();
+    }
+  };
+
   if (isLoading || !data) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -69,6 +88,16 @@ export default function AnalyticsDashboard() {
     { name: "Cancelled", value: data.orderStatus.canceled },
   ];
 
+  const formattedRevenueData = data.revenueData.map(item => ({
+    time: formatTimestamp(item.timestamp),
+    revenue: item.revenue,
+  }));
+
+  const formattedCustomerData = data.customerData.map(item => ({
+    time: formatTimestamp(item.timestamp),
+    newCustomers: item.newCustomers,
+  }));
+
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
@@ -78,10 +107,10 @@ export default function AnalyticsDashboard() {
           onChange={(e) => setTimeRange(e.target.value)}
           className="bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
         >
-          <option value="1M">Last Month</option>
-          <option value="3M">Last 3 Months</option>
-          <option value="6M">Last 6 Months</option>
-          <option value="1Y">Last Year</option>
+          <option value="1D">Last 24 hours</option>
+          <option value="7D">Last 7 days</option>
+          <option value="1M">Last month</option>
+          <option value="1Y">Last year</option>
         </select>
       </div>
 
@@ -120,12 +149,18 @@ export default function AnalyticsDashboard() {
           <CardContent>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data.revenueData}>
-                  <XAxis dataKey="month" />
+                <LineChart data={formattedRevenueData}>
+                  <XAxis dataKey="time" />
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="revenue" stroke="#10B981" strokeWidth={2} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="#10B981" 
+                    strokeWidth={2}
+                    dot={timeRange === '1D'}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -167,8 +202,8 @@ export default function AnalyticsDashboard() {
           <CardContent>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.customerData}>
-                  <XAxis dataKey="month" />
+                <BarChart data={formattedCustomerData}>
+                  <XAxis dataKey="time" />
                   <YAxis />
                   <Tooltip />
                   <Legend />

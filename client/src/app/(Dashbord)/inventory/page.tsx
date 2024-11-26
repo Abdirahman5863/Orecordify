@@ -1,6 +1,6 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+
+import EditInventoryDialog from '@/components/EditInventory';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,9 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import AddOrderDialog from '@/components/Addorder';
-import EditInventoryDialog from '@/components/EditInventory';
-import AddItemDialog from '@/components/Addinventory';
+import AddInventoryDialog from '@/components/Addinventory';
 
 interface InventoryItem {
   id: string;
@@ -155,7 +155,7 @@ export default function InventoryPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <AddItemDialog  onItemAdded={fetchInventory} />
+          <AddInventoryDialog onItemAdded={fetchInventory} />
         </div>
         <div className="overflow-x-auto bg-white rounded-lg shadow">
           <Table>

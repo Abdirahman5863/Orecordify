@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import {prisma}  from '@/lib/prismaClient';
+import { prisma } from '@/lib/prismaClient';
 import { getAuth } from "@clerk/nextjs/server";
 
 export async function GET(request: NextRequest) {
@@ -12,43 +12,38 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const range = searchParams.get('range') || '6M'; // Default to 6 months
+    const range = searchParams.get('range') || '1D';
+
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!dbUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
     // Calculate date range
     const endDate = new Date();
     const startDate = new Date();
     switch (range) {
+      case '1D':
+        startDate.setHours(0, 0, 0, 0);
+        break;
+      case '7D':
+        startDate.setDate(endDate.getDate() - 7);
+        break;
       case '1M':
         startDate.setMonth(endDate.getMonth() - 1);
-        break;
-      case '3M':
-        startDate.setMonth(endDate.getMonth() - 3);
-        break;
-      case '6M':
-        startDate.setMonth(endDate.getMonth() - 6);
         break;
       case '1Y':
         startDate.setFullYear(endDate.getFullYear() - 1);
         break;
     }
 
-    // Get analytics data
-    const analyticsData = await prisma.analytics.findMany({
-      where: {
-        date: {
-          gte: startDate,
-          lte: endDate,
-        },
-      },
-      orderBy: {
-        date: 'asc',
-      },
-    });
-
     // Get orders data for the period
     const orders = await prisma.order.findMany({
       where: {
-        user: { clerkId: userId },
+        userId: dbUser.id,
         createdAt: {
           gte: startDate,
           lte: endDate,
@@ -61,6 +56,39 @@ export async function GET(request: NextRequest) {
           },
         },
       },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
+    // Get customers data with timestamps
+    const customers = await prisma.customer.findMany({
+      where: {
+        userId: dbUser.id,
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
+    // Group orders by timestamp for revenue timeline
+    const revenueTimeline = new Map();
+    orders.forEach(order => {
+      const timestamp = order.createdAt.toISOString();
+      const existing = revenueTimeline.get(timestamp) || 0;
+      revenueTimeline.set(timestamp, existing + order.totalAmount);
+    });
+
+    // Group customers by timestamp for customer timeline
+    const customerTimeline = new Map();
+    customers.forEach(customer => {
+      const timestamp = customer.createdAt.toISOString();
+      const existing = customerTimeline.get(timestamp) || 0;
+      customerTimeline.set(timestamp, existing + 1);
     });
 
     // Calculate current period metrics
@@ -74,16 +102,6 @@ export async function GET(request: NextRequest) {
       pending: orders.filter(order => order.status === 'pending').length,
       canceled: orders.filter(order => order.status === 'canceled').length,
     };
-
-    // Get customers data
-    const customers = await prisma.customer.findMany({
-      where: {
-        createdAt: {
-          gte: startDate,
-          lte: endDate,
-        },
-      },
-    });
 
     // Calculate top products
     const productSales = new Map();
@@ -103,14 +121,14 @@ export async function GET(request: NextRequest) {
     const previousStartDate = new Date(startDate);
     const previousEndDate = new Date(startDate);
     switch (range) {
+      case '1D':
+        previousStartDate.setDate(previousStartDate.getDate() - 1);
+        break;
+      case '7D':
+        previousStartDate.setDate(previousStartDate.getDate() - 7);
+        break;
       case '1M':
         previousStartDate.setMonth(previousStartDate.getMonth() - 1);
-        break;
-      case '3M':
-        previousStartDate.setMonth(previousStartDate.getMonth() - 3);
-        break;
-      case '6M':
-        previousStartDate.setMonth(previousStartDate.getMonth() - 6);
         break;
       case '1Y':
         previousStartDate.setFullYear(previousStartDate.getFullYear() - 1);
@@ -119,7 +137,7 @@ export async function GET(request: NextRequest) {
 
     const previousOrders = await prisma.order.findMany({
       where: {
-        user: { clerkId: userId },
+        userId: dbUser.id,
         createdAt: {
           gte: previousStartDate,
           lte: previousEndDate,
@@ -138,6 +156,7 @@ export async function GET(request: NextRequest) {
 
     const previousCustomers = await prisma.customer.count({
       where: {
+        userId: dbUser.id,
         createdAt: {
           gte: previousStartDate,
           lte: previousEndDate,
@@ -156,6 +175,17 @@ export async function GET(request: NextRequest) {
     const averageOrderChange = previousAverageOrder > 0 
       ? ((averageOrderValue - previousAverageOrder) / previousAverageOrder) * 100 
       : 100;
+
+    // Format timeline data
+    const revenueData = Array.from(revenueTimeline.entries()).map(([timestamp, revenue]) => ({
+      timestamp,
+      revenue,
+    }));
+
+    const customerData = Array.from(customerTimeline.entries()).map(([timestamp, count]) => ({
+      timestamp,
+      newCustomers: count,
+    }));
 
     // Format response data
     const response = {
@@ -179,14 +209,8 @@ export async function GET(request: NextRequest) {
       },
       orderStatus,
       topProducts,
-      revenueData: analyticsData.map(data => ({
-        month: new Date(data.date).toLocaleString('default', { month: 'short' }),
-        revenue: data.totalRevenue,
-      })),
-      customerData: analyticsData.map(data => ({
-        month: new Date(data.date).toLocaleString('default', { month: 'short' }),
-        newCustomers: data.newCustomers,
-      })),
+      revenueData,
+      customerData,
     };
 
     return NextResponse.json(response);
@@ -204,13 +228,21 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!dbUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     // Get today's orders
     const orders = await prisma.order.findMany({
       where: {
-        user: { clerkId: userId },
+        userId: dbUser.id,
         createdAt: {
           gte: today,
         },
@@ -231,6 +263,7 @@ export async function POST(request: NextRequest) {
     // Get new customers today
     const newCustomers = await prisma.customer.count({
       where: {
+        userId: dbUser.id,
         createdAt: {
           gte: today,
         },
@@ -254,9 +287,9 @@ export async function POST(request: NextRequest) {
     // Get low stock alerts
     const lowStockItems = await prisma.inventoryItem.findMany({
       where: {
-        user: { clerkId: userId },
+        userId: dbUser.id,
         quantity: {
-          lte: 10, // Default threshold
+          lte: 10,
         },
       },
     });
@@ -270,6 +303,7 @@ export async function POST(request: NextRequest) {
         totalOrders,
         totalRevenue,
         newCustomers,
+        
         topProducts: topProducts as any,
         inventoryAlerts: lowStockItems as any,
         updatedAt: new Date(),

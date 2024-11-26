@@ -43,10 +43,26 @@ export default function EditInventoryDialog({ item, onItemUpdated }: EditInvento
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const [formData, setFormData] = useState(item);
+  const [formData, setFormData] = useState({
+    id: item.id,
+    name: item.name,
+    description: item.description || '',
+    category: item.category,
+    quantity: item.quantity,
+    price: item.price,
+    reorderPoint: item.reorderPoint,
+  });
 
   useEffect(() => {
-    setFormData(item);
+    setFormData({
+      id: item.id,
+      name: item.name,
+      description: item.description || '',
+      category: item.category,
+      quantity: item.quantity,
+      price: item.price,
+      reorderPoint: item.reorderPoint,
+    });
   }, [item]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -129,10 +145,9 @@ export default function EditInventoryDialog({ item, onItemUpdated }: EditInvento
             <Label htmlFor="sku">SKU</Label>
             <Input
               id="sku"
-              name="sku"
-              value={formData.sku}
-              onChange={handleChange}
-              required
+              value={item.sku}
+              disabled
+              className="bg-gray-100"
             />
           </div>
           <div className="grid w-full gap-1.5">

@@ -131,12 +131,12 @@ export default function AddInventoryDialog({ onItemAdded }: AddInventoryDialogPr
             <Label htmlFor="sku">SKU</Label>
             <Input
               id="sku"
-              name="sku"
               value={formData.sku}
-              onChange={handleChange}
-              required
+              disabled
+              className="bg-gray-100"
             />
-          </div>
+            </div>
+         
           <div className="grid w-full gap-1.5">
             <Label htmlFor="description">Description</Label>
             <Textarea

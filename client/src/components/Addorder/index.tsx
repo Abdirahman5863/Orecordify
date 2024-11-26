@@ -4,8 +4,8 @@
 //@ts-nocheck
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Plus, Trash } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Plus, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,8 +31,15 @@ interface Customer {
   email: string;
 }
 
+interface InventoryItem {
+  id: string;
+  name: string;
+  price: number;
+}
+
 interface OrderItem {
-  productName: string;
+  itemId: string;
+  itemName: string;
   quantity: number;
   price: number;
 }
@@ -42,29 +49,34 @@ interface AddOrderDialogProps {
   totalOrders: number;
 }
 
-export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDialogProps) {
+export default function AddOrderDialog({
+  onOrderAdded,
+  totalOrders,
+}: AddOrderDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
   const { toast } = useToast();
-  
+
   const [formData, setFormData] = useState({
-    customerId: '',
-    customerName: '',
-    status: 'pending' as const,
-    items: [{ productName: '', quantity: 1, price: 0 }] as OrderItem[],
+    customerId: "",
+    customerName: "",
+    status: "pending" as const,
+    items: [{ itemId: "", itemName: "", quantity: 1, price: 0 }] as OrderItem[],
   });
 
-  const nextOrderNumber = `OD${String(totalOrders + 1).padStart(4, '0')}`;
+  const nextOrderNumber = `OD${String(totalOrders + 1).padStart(4, "0")}`;
 
   useEffect(() => {
     fetchCustomers();
+    fetchInventoryItems();
   }, []);
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch('/api/customer');
-      if (!response.ok) throw new Error('Failed to fetch customers');
+      const response = await fetch("/api/customer");
+      if (!response.ok) throw new Error("Failed to fetch customers");
       const data = await response.json();
       setCustomers(data);
     } catch (error) {
@@ -76,13 +88,31 @@ export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDi
     }
   };
 
+  const fetchInventoryItems = async () => {
+    try {
+      const response = await fetch("/api/inventory");
+      if (!response.ok) throw new Error("Failed to fetch inventory items");
+      const data = await response.json();
+      setInventoryItems(data);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch inventory items",
+        variant: "destructive",
+      });
+    }
+  };
+
   const calculateTotalAmount = () => {
-    return formData.items.reduce((total, item) => total + item.quantity * item.price, 0);
+    return formData.items.reduce(
+      (total, item) => total + item.quantity * item.price,
+      0
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.customerId) {
       toast({
         title: "Error",
@@ -95,27 +125,29 @@ export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDi
     setIsLoading(true);
 
     try {
-      const validItems = formData.items.every(item => 
-        item.productName && 
-        item.quantity > 0 && 
-        item.price >= 0
+      const validItems = formData.items.every(
+        (item) =>
+          item.itemId &&
+          item.itemName &&
+          item.quantity > 0 &&
+          item.price >= 0
       );
 
       if (!validItems) {
-        throw new Error('Please fill in all item details correctly');
+        throw new Error("Please fill in all item details correctly");
       }
 
       const totalAmount = calculateTotalAmount();
-      
-      const response = await fetch('/api/order', {
-        method: 'POST',
+
+      const response = await fetch("/api/order", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ ...formData, totalAmount }),
       });
 
-      if (!response.ok) throw new Error('Failed to create order');
+      if (!response.ok) throw new Error("Failed to create order");
 
       toast({
         title: "Success",
@@ -123,10 +155,10 @@ export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDi
       });
 
       setFormData({
-        customerId: '',
-        customerName: '',
-        status: 'pending',
-        items: [{ productName: '', quantity: 1, price: 0 }],
+        customerId: "",
+        customerName: "",
+        status: "pending",
+        items: [{ itemId: "", itemName: "", quantity: 1, price: 0 }],
       });
 
       setIsOpen(false);
@@ -134,7 +166,8 @@ export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDi
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create order",
+        description:
+          error instanceof Error ? error.message : "Failed to create order",
         variant: "destructive",
       });
     } finally {
@@ -144,19 +177,31 @@ export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDi
 
   const handleItemChange = (index: number, field: keyof OrderItem, value: string | number) => {
     const newItems = [...formData.items];
-    newItems[index] = {
-      ...newItems[index],
-      [field]: field === 'quantity' || field === 'price' 
-        ? parseFloat(value as string) || 0
-        : value,
-    };
-    setFormData(prev => ({ ...prev, items: newItems }));
+    if (field === "itemId") {
+      const selectedItem = inventoryItems.find((item) => item.id === value);
+      if (selectedItem) {
+        newItems[index] = {
+          ...newItems[index],
+          itemId: selectedItem.id,
+          itemName: selectedItem.name,
+          price: selectedItem.price,
+        };
+      }
+    } else {
+      newItems[index] = {
+        ...newItems[index],
+        [field]: field === "quantity" || field === "price"
+          ? parseFloat(value as string) || 0
+          : value,
+      };
+    }
+    setFormData((prev) => ({ ...prev, items: newItems }));
   };
 
   const handleCustomerChange = (customerId: string) => {
-    const customer = customers.find(c => c.id === customerId);
+    const customer = customers.find((c) => c.id === customerId);
     if (customer) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         customerId: customer.id,
         customerName: customer.name,
@@ -165,16 +210,16 @@ export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDi
   };
 
   const addItem = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      items: [...prev.items, { productName: '', quantity: 1, price: 0 }],
+      items: [...prev.items, { itemId: "", itemName: "", quantity: 1, price: 0 }],
     }));
   };
 
   const removeItem = (index: number) => {
     if (formData.items.length > 1) {
       const newItems = formData.items.filter((_, i) => i !== index);
-      setFormData(prev => ({ ...prev, items: newItems }));
+      setFormData((prev) => ({ ...prev, items: newItems }));
     }
   };
 
@@ -214,13 +259,25 @@ export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDi
             {formData.items.map((item, index) => (
               <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end bg-gray-50 p-4 rounded-lg">
                 <div>
-                  <Label htmlFor={`productName-${index}`}>Product Name</Label>
-                  <Input
-                    id={`productName-${index}`}
-                    value={item.productName}
-                    onChange={(e) => handleItemChange(index, 'productName', e.target.value)}
-                    required
-                  />
+                  <Label htmlFor={`itemId-${index}`}>Item</Label>
+                  <Select
+                    value={item.itemId || undefined}
+                    onValueChange={(value) => handleItemChange(index, "itemId", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select item" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {inventoryItems.map((inventoryItem) => (
+                        <SelectItem key={inventoryItem.id} value={inventoryItem.id}>
+                        
+                          {inventoryItem.name} - ${inventoryItem.price.toFixed(2)}
+                        
+                        </SelectItem>
+                          
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor={`quantity-${index}`}>Quantity</Label>
@@ -229,7 +286,7 @@ export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDi
                     type="number"
                     min="1"
                     value={item.quantity}
-                    onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                    onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
                     required
                   />
                 </div>
@@ -239,11 +296,8 @@ export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDi
                     <Input
                       id={`price-${index}`}
                       type="number"
-                      min="0"
-                      step="0.01"
                       value={item.price}
-                      onChange={(e) => handleItemChange(index, 'price', e.target.value)}
-                      required
+                      disabled
                     />
                   </div>
                   <Button
@@ -252,39 +306,19 @@ export default function AddOrderDialog({ onOrderAdded, totalOrders }: AddOrderDi
                     size="icon"
                     className="mt-auto"
                     onClick={() => removeItem(index)}
-                    disabled={formData.items.length === 1}
                   >
                     <Trash className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             ))}
-            <Button type="button" variant="outline" onClick={addItem} className="w-full">
-              Add Another Item
+            <Button type="button" onClick={addItem} variant="outline">
+              <Plus className="h-4 w-4" /> Add Item
             </Button>
           </div>
 
-          <div className="grid w-full gap-1.5">
-            <Label htmlFor="status">Status</Label>
-            <Select
-              value={formData.status}
-              onValueChange={(value: 'pending' | 'completed' | 'canceled') => 
-                setFormData(prev => ({ ...prev, status: value }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="canceled">Canceled</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Submitting..." : "Submit Order"}
+          <Button disabled={isLoading} className="w-full">
+            {isLoading ? "Saving..." : "Save Order"}
           </Button>
         </form>
       </DialogContent>

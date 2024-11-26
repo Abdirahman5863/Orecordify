@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import  {prisma}  from '@/lib/prismaClient';
+import { prisma } from '@/lib/prismaClient';
 import { getAuth } from "@clerk/nextjs/server";
 
 export async function GET(request: NextRequest) {
@@ -26,6 +26,9 @@ export async function GET(request: NextRequest) {
         notes: true,
         orderItems: true,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     return NextResponse.json(inventory);
@@ -45,7 +48,6 @@ export async function POST(request: NextRequest) {
   try {
     const {
       name,
-      sku,
       description,
       category,
       quantity,
@@ -61,6 +63,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Get the count of existing items in this category
+    const itemCount = await prisma.inventoryItem.count({
+      where: {
+        userId: user.id,
+        category,
+      },
+    });
+
+    // Generate SKU: Category prefix (3 chars) + Sequential number (3 digits) + Random suffix (2 chars)
+    const categoryPrefix = category.substring(0, 3).toUpperCase();
+    const sequentialNumber = String(itemCount + 1).padStart(3, '0');
+    const randomSuffix = Math.random().toString(36).substring(2, 4).toUpperCase();
+    const sku = `${categoryPrefix}${sequentialNumber}${randomSuffix}`;
+
     const item = await prisma.inventoryItem.create({
       data: {
         name,
@@ -69,7 +85,7 @@ export async function POST(request: NextRequest) {
         category,
         quantity,
         price,
-        reorderPoint,
+        reorderPoint: reorderPoint || 10,
         userId: user.id,
       },
     });
@@ -89,12 +105,39 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
-    const { id, ...updateData } = await request.json();
+    const { id, name, description, category, quantity, price, reorderPoint } = await request.json();
 
+    // Verify user owns this item
+    const existingItem = await prisma.inventoryItem.findFirst({
+      where: {
+        id,
+        user: {
+          clerkId: userId,
+        },
+      },
+    });
+
+    if (!existingItem) {
+      return NextResponse.json({ error: "Item not found or unauthorized" }, { status: 404 });
+    }
+
+    // Only update allowed fields
     const item = await prisma.inventoryItem.update({
       where: { id },
-      data: updateData,
+      data: {
+        name,
+        description,
+        category,
+        quantity,
+        price,
+        reorderPoint,
+      },
     });
+
+    // If quantity is updated and falls below reorderPoint, create a notification or alert
+    if (quantity <= item.reorderPoint) {
+      console.log(`Low stock alert for ${item.name}: ${quantity} units remaining`);
+    }
 
     return NextResponse.json(item);
   } catch (error) {
@@ -116,6 +159,20 @@ export async function DELETE(request: NextRequest) {
 
     if (!id) {
       return NextResponse.json({ error: 'Inventory ID is required' }, { status: 400 });
+    }
+
+    // Verify user owns this item
+    const existingItem = await prisma.inventoryItem.findFirst({
+      where: {
+        id,
+        user: {
+          clerkId: userId,
+        },
+      },
+    });
+
+    if (!existingItem) {
+      return NextResponse.json({ error: "Item not found or unauthorized" }, { status: 404 });
     }
 
     await prisma.inventoryItem.delete({

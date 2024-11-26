@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import  {prisma} from '@/lib/prismaClient';
+import { prisma } from '@/lib/prismaClient';
 import { getAuth, currentUser } from '@clerk/nextjs/server';
 
 interface OrderRequestBody {
@@ -7,13 +7,14 @@ interface OrderRequestBody {
   customerName: string;
   status: string;
   items: {
-    productName: string;
+    name: string;
     quantity: number;
     price: number;
   }[];
   totalAmount: number;
 }
 
+// Fetch all orders for the authenticated user
 export async function GET(request: NextRequest) {
   const { userId } = getAuth(request);
 
@@ -42,6 +43,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// Create a new order
 export async function POST(request: NextRequest) {
   const { userId } = getAuth(request);
 
@@ -57,6 +59,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Customer ID is required' }, { status: 400 });
     }
 
+    // Ensure the user exists in your database
     let dbUser = await prisma.user.findUnique({
       where: { clerkId: userId },
     });
@@ -75,20 +78,60 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Create or update the customer
     const customer = await prisma.customer.upsert({
       where: { id: customerId },
       update: {},
       create: {
         name: customerName,
-        email: "",  // Set to the actual email if required
+        email: "", // Optional: update based on requirements
         phone: "",
-        userId: dbUser.id  // Set to the actual phone if required
+        userId: dbUser.id,
       },
     });
 
+    // Generate a new order number
     const orderCount = await prisma.order.count();
     const orderNumber = `OD${String(orderCount + 1).padStart(4, '0')}`;
 
+    // Validate inventory and update quantities
+    const updatedItems = [];
+    for (const item of items) {
+      const inventoryItem = await prisma.inventoryItem.findFirst({
+        where: { name: item.name, userId: dbUser.id },
+      });
+
+      if (!inventoryItem) {
+        return NextResponse.json(
+          { error: `Inventory item "${item.name}" not found.` },
+          { status: 400 }
+        );
+      }
+
+      if (inventoryItem.quantity < item.quantity) {
+        return NextResponse.json(
+          { error: `Not enough quantity for "${item.name}". Available: ${inventoryItem.quantity}` },
+          { status: 400 }
+        );
+      }
+
+      // Reduce the inventory quantity
+      await prisma.inventoryItem.update({
+        where: { id: inventoryItem.id },
+        data: {
+          quantity: inventoryItem.quantity - item.quantity,
+        },
+      });
+
+      updatedItems.push({
+        name: item.name,
+        quantity: item.quantity,
+        priceAtTime: item.price,
+        inventoryId: inventoryItem.id, // Link the existing inventory item
+      });
+    }
+
+    // Create the order
     const newOrder = await prisma.order.create({
       data: {
         orderNumber,
@@ -99,28 +142,11 @@ export async function POST(request: NextRequest) {
         paymentStatus: 'pending',
         userId: dbUser.id,
         items: {
-          create: items.map(item => ({
-            quantity: item.quantity,
-            priceAtTime: item.price,
-            inventory: {
-              create: {
-                name: item.productName,
-                sku: `SKU${Date.now()}`,
-                category: 'default',
-                quantity: item.quantity,
-                price: item.price,
-                userId: dbUser.id,
-              },
-            },
-          })),
+          create: updatedItems, // Use updated inventory references
         },
       },
       include: {
-        items: {
-          include: {
-            inventory: true,
-          },
-        },
+        items: true,
         customer: true,
       },
     });
@@ -132,6 +158,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Update an order's status
 export async function PUT(request: NextRequest) {
   const { userId } = getAuth(request);
 
@@ -162,6 +189,7 @@ export async function PUT(request: NextRequest) {
   }
 }
 
+// Delete an order
 export async function DELETE(request: NextRequest) {
   const { userId } = getAuth(request);
 
