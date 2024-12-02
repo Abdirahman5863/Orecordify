@@ -10,11 +10,18 @@ const menuItems= [{
 
   },
   {
+    icon:"/inven.png",
+    label:"Inventory",
+    href:"/inventory",
+
+  },
+  {
     icon:"/user.png",
     label:"Customer",
     href:"/customer",
 
   },
+
   {
     icon:"/clipboard.png",
     label:"Order",
@@ -35,12 +42,7 @@ const menuItems= [{
 
   },
   
-  {
-    icon:"/inven.png",
-    label:"Inventory",
-    href:"/inventory",
 
-  },
   {
     icon:"/note.png",
     label:"note",
