@@ -24,8 +24,8 @@ const features = [
     image: "/anlytic.png"
   },
   {
-    title: "Notes Board",
-    description: "Write your own notes or diary ",
+    title: "Notes Taking",
+    description: "Take notes and keep track of important information with our easy-to-use note-taking feature.",
     image: "/notion.png"
   }
 ]

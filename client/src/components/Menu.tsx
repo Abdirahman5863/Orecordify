@@ -45,7 +45,7 @@ const menuItems= [{
 
   {
     icon:"/note.png",
-    label:"note",
+    label:"Notes taking",
     href:"/note",
   
   },
