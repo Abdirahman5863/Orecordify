@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -6,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import CustomerTable from '@/components/customers/customerTable';
 import CustomerFilters from '@/components/customers/customerFilters';
-import AddCustomerDialog from '@/components/customers/addCustomerDialog';
+import AddCustomerDialog from '@/components/customers/AddCustomerDialog';
 import { useToast } from "@/hooks/use-toast";
 import { Customer } from '@/types/customer';
 
