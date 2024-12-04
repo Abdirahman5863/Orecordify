@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prismaClient';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth, currentUser } from '@clerk/nextjs/server';
+import { date } from 'zod';
 
 // Define the shape of the note data
 interface NoteData {
@@ -100,19 +101,63 @@ export async function POST(request: NextRequest) {
 
 //PUT route to update note details
 
-export async function PUT(request: NextRequest)
- { const { userId } = getAuth(request); if (!userId) 
-  { return NextResponse.json({ error: 'Unauthorized' }, 
-    { status: 401 }); } 
-    try { const { id, ...updateData } = await request.json(); 
-    const note = await prisma.note.findUnique({ where: { id }, }); 
-    if (!note || note.userId !== userId)
-   { return NextResponse.json({ error: 'Note not found or unauthorized' }, 
-    { status: 404 }); } const updatedNote = await prisma.note.update({ where: { id },
-       data: updateData, }); return NextResponse.json(updatedNote); } catch (error)
-        { console.error('Error updating note:', error); 
-          return NextResponse.json({ error: 'Error updating note' }, { status: 500 }); } }
-// DELETE route to remove a note
+export async function PUT(request: NextRequest) {
+  try {
+    const { userId } = getAuth(request);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!dbUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'Note ID is required' }, { status: 400 });
+    }
+
+    const note = await prisma.note.findUnique({
+      where: { id },
+    });
+
+    if (!note || note.userId !== dbUser.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body: NoteData = await request.json();
+    const { title, content, type, priority, customerId, orderId, inventoryId } = body;
+
+    const updatedNote = await prisma.note.update({
+      where: { id },
+      data: {
+        title,
+        content,
+        type,
+        priority,
+        status: note.status,
+        customerId,
+        orderId,
+        inventoryId,
+        userId: dbUser.id,
+      }
+    });
+
+    return NextResponse.json({ message: 'Note updated successfully', note: updatedNote });
+
+  } catch (error) {
+    console.error('Error updating note:', error);
+    return NextResponse.json({ error: 'Error updating note' }, { status: 500 });
+  }
+}
+
+
 export async function DELETE(request: NextRequest) {
   try {
     const { userId } = getAuth(request);

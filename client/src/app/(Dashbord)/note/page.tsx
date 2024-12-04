@@ -71,23 +71,23 @@ export default function NotesPage() {
     }
   };
 
-  const handleUpdateNote = async (id: string, updatedData: any) => {
+  const handleUpdateNote = async (id: string, data: any) => {
     try {
-      const response = await fetch('/api/notes', {
+      const response = await fetch(`/api/note?id=${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id, ...updatedData }),
+        body: JSON.stringify(data), // Ensure only data is sent, not id in the body
       });
-
+  
       if (!response.ok) throw new Error('Failed to update note');
-
+  
       toast({
         title: "Success",
         description: "Note updated successfully",
       });
-
+  
       fetchNotes();
     } catch (error) {
       toast({
@@ -97,10 +97,11 @@ export default function NotesPage() {
       });
     }
   };
+  
 
   const handleDeleteNote = async (id: string) => {
     try {
-      const response = await fetch(`/api/notes?id=${id}`, {
+      const response = await fetch(`/api/note?id=${id}`, {
         method: 'DELETE',
       });
 
