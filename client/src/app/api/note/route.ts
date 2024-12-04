@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prismaClient';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth, currentUser } from '@clerk/nextjs/server';
-import { date } from 'zod';
+
 
 // Define the shape of the note data
 interface NoteData {
