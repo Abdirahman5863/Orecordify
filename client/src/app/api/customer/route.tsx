@@ -1,9 +1,7 @@
-import { prisma } from '@/lib/prismaClient';
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth, currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prismaClient';
+import { getAuth } from '@clerk/nextjs/server';
 
-
-// GET route to fetch customers
 export async function GET(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
@@ -19,9 +17,39 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const type = searchParams.get('type');
+    const category = searchParams.get('category');
+    const priority = searchParams.get('priority');
+    const tag = searchParams.get('tag');
+
     const customers = await prisma.customer.findMany({
-      where: { userId: dbUser.id },
-      orderBy: { createdAt: 'desc' },
+      where: {
+        userId: dbUser.id,
+        ...(status && { status }),
+        ...(type && { type }),
+        ...(category && { category }),
+        ...(priority && { priority }),
+        ...(tag && { tags: { has: tag } }),
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        notes: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 1,
+        },
+        orders: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+          take: 1,
+        },
+      },
     });
 
     return NextResponse.json(customers);
@@ -31,8 +59,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST route to create a new customer
-
 export async function POST(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
@@ -40,44 +66,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let dbUser = await prisma.user.findUnique({
+    const dbUser = await prisma.user.findUnique({
       where: { clerkId: userId },
     });
 
     if (!dbUser) {
-      const user = await currentUser();
-      if (!user) {
-        return NextResponse.json({ error: "User not found" }, { status: 404 });
-      }
-
-
-      dbUser = await prisma.user.create({
-        data: {
-          clerkId: userId,
-          firstName: user.firstName ?? '',
-          lastName: user.lastName ?? '',
-          email: user.emailAddresses[0]?.emailAddress ?? '',
-        },
-      });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const body = await request.json() as { name: string; email: string; phone: string };
-    const { name, email, phone } = body;
+    const customerCount = await prisma.customer.count({
+      where: { userId: dbUser.id },
+    });
+    const customerId = `CUST-${String(customerCount + 1).padStart(3, '0')}`;
 
-    // Generate a unique customer ID
-    // const customerId = `CUST-${dbUser.id.slice(0, 8)}-${uuidv4().slice(0, 8)}`;
-    const customerCount = await prisma.customer.count();
-    const customerNumber = `CUST${String(customerCount + 1).padStart(3 , '0')}`;
+    const body = await request.json();
+    const { name, phone, type = 'regular', category = 'personal', priority, tags = [] } = body;
 
     const newCustomer = await prisma.customer.create({
       data: {
-        id: customerNumber,
+        customerId,
         name,
-        email,
         phone,
+        type,
+        category,
+        priority,
+        tags,
         userId: dbUser.id,
-        totalOrders: 0,
-        totalSpent: 0,
       },
     });
 
@@ -90,7 +104,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Error creating customer' }, { status: 500 });
   }
 }
-// PUT route to update customer details
+
 export async function PUT(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
@@ -109,17 +123,23 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { id, ...updateData } = body;
 
-    const customer = await prisma.customer.findUnique({
-      where: { id },
+    const customer = await prisma.customer.findFirst({
+      where: {
+        id,
+        userId: dbUser.id,
+      },
     });
 
-    if (!customer || customer.userId !== dbUser.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!customer) {
+      return NextResponse.json({ error: "Customer not found or unauthorized" }, { status: 404 });
     }
 
     const updatedCustomer = await prisma.customer.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...updateData,
+        updatedAt: new Date(),
+      },
     });
 
     return NextResponse.json(updatedCustomer);
@@ -129,7 +149,6 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// DELETE route to remove a customer
 export async function DELETE(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
@@ -152,12 +171,15 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Customer ID is required' }, { status: 400 });
     }
 
-    const customer = await prisma.customer.findUnique({
-      where: { id },
+    const customer = await prisma.customer.findFirst({
+      where: {
+        id,
+        userId: dbUser.id,
+      },
     });
 
-    if (!customer || customer.userId !== dbUser.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!customer) {
+      return NextResponse.json({ error: "Customer not found or unauthorized" }, { status: 404 });
     }
 
     await prisma.customer.delete({

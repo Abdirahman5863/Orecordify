@@ -83,9 +83,13 @@ export async function POST(request: NextRequest) {
       where: { id: customerId },
       update: {},
       create: {
+       customerId: customerId,
         name: customerName,
-        email: "", // Optional: update based on requirements
-        phone: "",
+        phone: '1234567890',
+        type:'regular',
+        category:'personal',
+        priority:'medium',
+        tags:[],
         userId: dbUser.id,
       },
     });
