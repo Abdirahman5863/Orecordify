@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   try {
     const subscription = await prisma.subscription.findFirst({
       where: {
-        user: { clerkId: userId },
+        user: { id: userId },
       },
     });
 
@@ -36,13 +36,13 @@ export async function POST(request: NextRequest) {
 
     // Find or create user in database
     let dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: userId },
     });
 
     if (!dbUser) {
       dbUser = await prisma.user.create({
         data: {
-          clerkId: userId,
+          id: userId,
           firstName: user.firstName || '',
           lastName: user.lastName || '',
           email: user.emailAddresses[0]?.emailAddress || '',

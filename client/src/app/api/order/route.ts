@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prismaClient';
+// import { prisma } from '@/lib/prismaClient';
 import { getAuth, currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prismaClient';
 
 interface OrderRequestBody {
   customerId: string;
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
   try {
     const orders = await prisma.order.findMany({
       where: {
-        user: { clerkId: userId },
+        user: { id: userId },
       },
       include: {
         customer: true,
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     // Ensure the user exists in your database
     let dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: userId },
     });
 
     if (!dbUser) {
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
 
       dbUser = await prisma.user.create({
         data: {
-          clerkId: userId,
+          id: userId,
           firstName: user.firstName || '',
           lastName: user.lastName || '',
           email: user.emailAddresses[0]?.emailAddress || '',

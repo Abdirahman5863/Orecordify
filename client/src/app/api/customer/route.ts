@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prismaClient';
+// import { prisma } from '@/lib/prismaClient';
 import { getAuth } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prismaClient';
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: userId },
     });
 
     if (!dbUser) {
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: userId },
     });
 
     if (!dbUser) {
@@ -113,7 +114,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: userId },
     });
 
     if (!dbUser) {
@@ -157,7 +158,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: userId },
     });
 
     if (!dbUser) {

@@ -1,6 +1,7 @@
-import { prisma } from '@/lib/prismaClient';
+// import { prisma } from '@/lib/prismaClient';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuth, currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prismaClient';
 
 
 // Define the shape of the note data
@@ -23,14 +24,14 @@ export async function GET(request: NextRequest) {
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: userId },
     });
 
     if (!dbUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const notes = await prisma.note.findMany({
+    const notes = await  prisma.note.findMany({
       where: { userId: dbUser.id },
       include: {
         customer: true,
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
     }
 
     let dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: userId },
     });
 
     if (!dbUser) {
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
 
       dbUser = await prisma.user.create({
         data: {
-          clerkId: userId,
+          id: userId,
           firstName: user.firstName ?? '',
           lastName: user.lastName ?? '',
           email: user.emailAddresses[0]?.emailAddress ?? '',
@@ -109,7 +110,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: userId },
     });
 
     if (!dbUser) {
@@ -166,7 +167,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: userId },
     });
 
     if (!dbUser) {

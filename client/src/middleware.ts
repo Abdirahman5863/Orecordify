@@ -10,7 +10,7 @@ const isProtectedRoute = createRouteMatcher([
   '/community',
   '/support',
   '/subscription',
-  '/inventory'
+  '/inventory' 
   
 ])
 

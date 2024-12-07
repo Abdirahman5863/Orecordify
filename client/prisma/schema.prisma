@@ -3,14 +3,14 @@ datasource db {
   url               = env("DATABASE_URL")
   directUrl         = env("DIRECT_URL")
 }
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 model User {
   id              String    @id @default(uuid())
-  clerkId         String    @unique
+  
   firstName       String?
   lastName        String?
   email           String    @unique
@@ -68,7 +68,6 @@ model Customer {
   id                String   @id @default(uuid())
   customerId        String    @unique // Format: CUST-001
   name             String
- 
   phone            String
   status           String    @default("active") // active, inactive
   type             String    @default("regular") // regular, vip, business

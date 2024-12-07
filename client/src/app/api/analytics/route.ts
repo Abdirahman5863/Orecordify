@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const range = searchParams.get('range') || '1D';
 
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: userId },
     });
 
     if (!dbUser) {
@@ -229,7 +229,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: userId },
     });
 
     if (!dbUser) {

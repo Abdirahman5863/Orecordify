@@ -5,7 +5,7 @@ export default function Page() {
     <UserProfile
       appearance={{
         elements: {
-    
+    // orcordify@5863
     
           footer: {
             display: 'none', // Removes the Clerk footer
