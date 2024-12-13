@@ -12,6 +12,7 @@ import { motion } from 'framer-motion'
 import { Facebook, Instagram, Linkedin, Youtube } from 'lucide-react'
 
 import FeaturesAndPricing from '@/components/features-&-pricing';
+import FAQ from '@/components/Faq';
 
 
 
@@ -61,7 +62,9 @@ export default function Home() {
             </Link>
           </motion.div>
         </section>
+
         <FeaturesAndPricing />
+        <FAQ/>
         <div className="flex justify-center items-center py-12 ">
       <Card className="w-full max-w-sm  bg-[#fafada]">
         <CardHeader>

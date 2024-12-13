@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+
 import { format } from 'date-fns';
 import { Edit2, Trash2, } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -76,32 +76,30 @@ export default function NoteCard({ note, onUpdate, onDelete }: NoteCardProps) {
     }
   };
 
-  const handleUpdate = async (id: string, data: any) => {
-    try {
-      const response = await fetch(`/api/note/${id}.ts`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+  // const handleUpdate = async (id: string, data: any) => {
+  //   try {
+  //     const response = await fetch(`/api/note/${id}.ts`, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(data),
+  //     });
 
-      if (!response.ok) {
-        throw new Error('Failed to update note');
-      }
+  //     if (!response.ok) {
+  //       throw new Error('Failed to update note');
+  //     }
 
-      const updatedNote = await response.json();
-      await onUpdate(id, updatedNote);
-    } catch (error) {
-      console.error('Error updating note:', error);
-    }
-  };
+  //     const updatedNote = await response.json();
+  //     await onUpdate(id, updatedNote);
+  //   } catch (error) {
+  //     console.error('Error updating note:', error);
+  //   }
+  // };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
+    <div
+      
     >
       <Card className="h-full flex flex-col">
         <CardHeader className="space-y-1">
@@ -168,8 +166,10 @@ export default function NoteCard({ note, onUpdate, onDelete }: NoteCardProps) {
         note={note}
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
-        onUpdate={handleUpdate}
+        onUpdate={onUpdate}
+        
+        
       />
-    </motion.div>
+    </div>
   );
 }

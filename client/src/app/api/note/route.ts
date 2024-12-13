@@ -1,44 +1,41 @@
-// import { prisma } from '@/lib/prismaClient';
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth, currentUser } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prismaClient';
+import { getAuth } from "@clerk/nextjs/server";
 
+// interface NoteData {
+//   title: string;
+//   content: string;
+//   type: string;
+//   priority: string;
+//   customerId?: string;
+//   orderId?: string;
+//   inventoryId?: string;
+// }
 
-// Define the shape of the note data
-interface NoteData {
-  title: string;
-  content: string;
-  type: string;
-  priority: string;
-  customerId?: string;
-  orderId?: string;
-  inventoryId?: string;
-}
-
-// GET route to fetch notes
 export async function GET(request: NextRequest) {
-  try {
-    const { userId } = getAuth(request);
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const { userId } = getAuth(request);
 
-    const dbUser = await prisma.user.findUnique({
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
       where: { id: userId },
     });
 
-    if (!dbUser) {
+    if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const notes = await  prisma.note.findMany({
-      where: { userId: dbUser.id },
-      include: {
-        customer: true,
-        order: true,
-        inventory: true,
+    const notes= await prisma.note.findMany({
+      where: {
+        userId: user.id,
       },
-      orderBy: { createdAt: 'desc' },
+  
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
     return NextResponse.json(notes);
@@ -48,126 +45,112 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST route to create a new note
 export async function POST(request: NextRequest) {
-  try {
-    const { userId } = getAuth(request);
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const { userId } = getAuth(request);
 
-    let dbUser = await prisma.user.findUnique({
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+ 
+
+    const user = await prisma.user.findUnique({
       where: { id: userId },
     });
 
-    if (!dbUser) {
-      const user = await currentUser();
-      if (!user) {
-        return NextResponse.json({ error: "User not found" }, { status: 404 });
-      }
-
-      dbUser = await prisma.user.create({
-        data: {
-          id: userId,
-          firstName: user.firstName ?? '',
-          lastName: user.lastName ?? '',
-          email: user.emailAddresses[0]?.emailAddress ?? '',
-        },
-      });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const body: NoteData = await request.json();
-    const { title, content, type, priority, customerId, orderId, inventoryId } = body;
-
+    const { title, content, type, priority, customerId, orderId, inventoryId } = await request.json();
     const newNote = await prisma.note.create({
       data: {
-        title, 
+        
+       
+        title,
         content,
         type,
         priority,
-        status: 'active',
         customerId,
         orderId,
         inventoryId,
-        userId: dbUser.id,
+        
+        status: 'active',
+        userId: user.id,
+
       },
+   
+      
     });
 
-    return NextResponse.json(newNote, { status: 201 });
+    return NextResponse.json(newNote);
   } catch (error) {
     console.error('Error creating note:', error);
     return NextResponse.json({ error: 'Error creating note' }, { status: 500 });
   }
 }
 
-//PUT route to update note details
-
 export async function PUT(request: NextRequest) {
-  try {
-    const { userId } = getAuth(request);
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const { userId } = getAuth(request);
 
-    const dbUser = await prisma.user.findUnique({
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
       where: { id: userId },
+      
     });
 
-    if (!dbUser) {
+    if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    const body = await request.json();
+    const { id, ...updateData } = body;
 
-    if (!id) {
-      return NextResponse.json({ error: 'Note ID is required' }, { status: 400 });
-    }
-
-    const note = await prisma.note.findUnique({
-      where: { id },
+    // First check if the note exists and belongs to the user
+    const existingNote = await prisma.note.findFirst({
+      where: {
+        id,
+        userId: user.id,
+      },
     });
 
-    if (!note || note.userId !== dbUser.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!existingNote) {
+      return NextResponse.json({ error: "Note not found or unauthorized" }, { status: 404 });
     }
-
-    const body: NoteData = await request.json();
-    const { title, content, type, priority, customerId, orderId, inventoryId } = body;
 
     const updatedNote = await prisma.note.update({
-      where: { id },
-      data: {
-        title,
-        content,
-        type,
-        priority,
-        status: note.status,
-        customerId,
-        orderId,
-        inventoryId,
-        userId: dbUser.id,
-      }
+      where: { id: existingNote.id },
+      data: updateData,
+      include: {
+        customer: true,
+        order: true,
+        inventory: true,
+      },
     });
 
-    return NextResponse.json({ message: 'Note updated successfully', note: updatedNote });
-
+    return NextResponse.json(updatedNote);
   } catch (error) {
     console.error('Error updating note:', error);
     return NextResponse.json({ error: 'Error updating note' }, { status: 500 });
   }
 }
 
-
 export async function DELETE(request: NextRequest) {
-  try {
-    const { userId } = getAuth(request);
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const { userId } = getAuth(request);
 
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
     const dbUser = await prisma.user.findUnique({
       where: { id: userId },
+      select: { id: true },
     });
 
     if (!dbUser) {
@@ -181,19 +164,23 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Note ID is required' }, { status: 400 });
     }
 
-    const note = await prisma.note.findUnique({
-      where: { id },
+    // First check if the note exists and belongs to the user
+    const existingNote = await prisma.note.findFirst({
+      where: {
+        id,
+        userId: dbUser.id,
+      },
     });
 
-    if (!note || note.userId !== dbUser.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!existingNote) {
+      return NextResponse.json({ error: "Note not found or unauthorized" }, { status: 404 });
     }
 
     await prisma.note.delete({
       where: { id },
     });
 
-    return NextResponse.json({ message: 'Note deleted successfully' });
+    return NextResponse.json({ success: true, id });
   } catch (error) {
     console.error('Error deleting note:', error);
     return NextResponse.json({ error: 'Error deleting note' }, { status: 500 });

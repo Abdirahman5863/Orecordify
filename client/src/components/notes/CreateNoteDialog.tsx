@@ -20,12 +20,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { useToast } from "@/hooks/use-toast";
+
+
 interface CreateNoteDialogProps {
   onNoteCreated: (note: any) => Promise<void>;
 }
 
 export default function CreateNoteDialog({ onNoteCreated }: CreateNoteDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -50,6 +54,10 @@ export default function CreateNoteDialog({ onNoteCreated }: CreateNoteDialogProp
       if (!response.ok) {
         throw new Error('Failed to create note');
       }
+      toast({
+        title: "Success",
+        description: "Customer created successfully",
+      });
 
       const newNote = await response.json();
       await onNoteCreated(newNote);
@@ -59,7 +67,9 @@ export default function CreateNoteDialog({ onNoteCreated }: CreateNoteDialogProp
         type: 'general',
         priority: 'medium',
       });
+      onNoteCreated(newNote);
       setIsOpen(false);
+      
     } catch (error) {
       console.error('Error creating note:', error);
     } finally {

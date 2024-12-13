@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Note } from '@/types/note';
+import { Note } from "@/types/note";
+import { toast } from "@/hooks/use-toast";
 
 interface EditNoteDialogProps {
   note: Note;
@@ -28,13 +30,18 @@ interface EditNoteDialogProps {
   onUpdate: (id: string, data: any) => Promise<void>;
 }
 
-export default function EditNoteDialog({ note, isOpen, onClose, onUpdate }: EditNoteDialogProps) {
+export default function EditNoteDialog({
+  note,
+  isOpen,
+  onClose,
+  onUpdate,
+}: EditNoteDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: note.title,
     content: note.content,
     type: note.type,
-    priority: note.priority || 'medium',
+    priority: note.priority || "medium",
   });
 
   useEffect(() => {
@@ -42,25 +49,47 @@ export default function EditNoteDialog({ note, isOpen, onClose, onUpdate }: Edit
       title: note.title,
       content: note.content,
       type: note.type,
-      priority: note.priority || 'medium',
+      priority: note.priority || "medium",
     });
   }, [note]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setIsLoading(true);
-
     try {
+      const response = await fetch(`/api/note?id=${note.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error("Failed to update note");
+
+      toast({
+        title: "Success",
+        description: "Note updated successfully",
+      });
+
       await onUpdate(note.id, formData);
       onClose();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update note",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -98,7 +127,9 @@ export default function EditNoteDialog({ note, isOpen, onClose, onUpdate }: Edit
               <Label htmlFor="type">Type</Label>
               <Select
                 value={formData.type}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, type: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
@@ -116,7 +147,9 @@ export default function EditNoteDialog({ note, isOpen, onClose, onUpdate }: Edit
               <Label htmlFor="priority">Priority</Label>
               <Select
                 value={formData.priority}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value }))}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, priority: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select priority" />

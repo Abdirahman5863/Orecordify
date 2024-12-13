@@ -39,88 +39,90 @@ export default function NotesPage() {
         description: "Failed to fetch notes",
         variant: "destructive",
       });
-    } finally {
+    }finally {
       setIsLoading(false);
-    }
-  };
+  };}
 
-  const handleCreateNote = async (newNote: any) => {
-    try {
-      const response = await fetch('/api/notes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newNote),
-      });
+  // const handleCreateNote = async (newNote: any) => {
+  //   try {
+  //     const response = await fetch('/api/notes', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(newNote),
+  //     });
 
-      if (!response.ok) throw new Error('Failed to create note');
+  //     if (!response.ok) throw new Error('Failed to create note');
 
-      toast({
-        title: "Success",
-        description: "Note created successfully",
-      });
+  //     toast({
+  //       title: "Success",
+  //       description: "Note created successfully",
+  //     });
 
-      fetchNotes();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create note",
-        variant: "destructive",
-      });
-    }
-  };
+  //     fetchNotes();
+  //   } catch (error) {
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to create note",
+  //       variant: "destructive",
+  //     });
 
-  const handleUpdateNote = async (id: string, data: any) => {
-    try {
-      const response = await fetch(`/api/note?id=${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data), // Ensure only data is sent, not id in the body
-      });
+  //   }
+  // };
+
+  // const handleUpdateNote = async (id: string, data: any) => {
+  //   try {
+  //     const response = await fetch(`/api/note?id=${id}`, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(data), // Ensure only data is sent, not id in the body
+  //     });
   
-      if (!response.ok) throw new Error('Failed to update note');
+  //     if (!response.ok) throw new Error('Failed to update note');
   
-      toast({
-        title: "Success",
-        description: "Note updated successfully",
-      });
+  //     toast({
+  //       title: "Success",
+  //       description: "Note updated successfully",
+  //     });
   
-      fetchNotes();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update note",
-        variant: "destructive",
-      });
-    }
-  };
+  //     fetchNotes();
+  //   } catch (error) {
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to update note",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
   
 
-  const handleDeleteNote = async (id: string) => {
-    try {
-      const response = await fetch(`/api/note?id=${id}`, {
-        method: 'DELETE',
-      });
+  // const handleDeleteNote = async (id: string) => {
+  //   try {
+  //     const response = await fetch(`/api/note?id=${id}`, {
+  //       method: 'DELETE',
+  //     });
 
-      if (!response.ok) throw new Error('Failed to delete note');
+  //     if (!response.ok) throw new Error('Failed to delete note');
 
-      toast({
-        title: "Success",
-        description: "Note deleted successfully",
-      });
+  //     toast({
+  //       title: "Success",
+  //       description: "Note deleted successfully",
+  //     });
 
-      fetchNotes();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete note",
-        variant: "destructive",
-      });
-    }
-  };
+  //     fetchNotes();
+  //   } catch (error) {
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to delete note",
+  //       variant: "destructive",
+  //     });
+
+  //   }
+
+  // };
 
   const filteredNotes = notes.filter(note => {
     const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -152,7 +154,7 @@ export default function NotesPage() {
             <h1 className="text-3xl font-bold text-gray-900">Notes</h1>
             <p className="text-gray-500 mt-1">Organize your thoughts and ideas</p>
           </div>
-          <CreateNoteDialog onNoteCreated={handleCreateNote} />
+          <CreateNoteDialog onNoteCreated={fetchNotes} />
         </div>
 
         <div className="grid gap-6 md:grid-cols-[250px,1fr]">
@@ -193,8 +195,8 @@ export default function NotesPage() {
               <NoteCard
                 key={note.id}
                 note={note}
-                onUpdate={handleUpdateNote}
-                onDelete={handleDeleteNote}
+              onUpdate={fetchNotes}
+                onDelete={fetchNotes}
               />
             ))}
             {filteredNotes.length === 0 && (
@@ -208,7 +210,7 @@ export default function NotesPage() {
                     ? "Try adjusting your filters or search term"
                     : "Create your first note to get started"}
                 </p>
-                <CreateNoteDialog onNoteCreated={handleCreateNote} />
+                <CreateNoteDialog onNoteCreated={fetchNotes} />
               </div>
             )}
           </div>
