@@ -1,52 +1,52 @@
-import React from "react";
+import React from "react"; 
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 
 const FAQ = () => {
   const faqs = [
     {
-      question: "What is Orceordify?",
+      question: "What is Orecordify?",
       answer:
-        "Orceordify is a platform designed to help businesses manage customer orders efficiently. It integrates tools like WhatsApp API to streamline order tracking and customer management.",
+        "Orecordify is a SaaS platform tailored for businesses to manage and track customer orders directly from WhatsApp. It simplifies customer management and order tracking in a centralized dashboard.",
     },
     {
-      question: "Who can use Orceordify?",
+      question: "Who can use Orecordify?",
       answer:
-        "Orceordify is ideal for small and medium-sized businesses, entrepreneurs using WhatsApp for sales, and retailers looking to streamline their order management.",
+        "Orecordify is perfect for small and medium-sized businesses, solo entrepreneurs, and online retailers who use WhatsApp for sales and want to streamline their operations.",
     },
     {
-      question: "How does Orceordify integrate with WhatsApp?",
+      question: "How does Orecordify integrate with WhatsApp?",
       answer:
-        "Using the WhatsApp API, Orceordify captures customer details and orders directly from messages, allowing management from a centralized dashboard.",
+        "With WhatsApp API integration, Orecordify collects customer details, order information, and communication history automatically. This ensures all data is accessible in one place for easy management.",
     },
     {
-      question: "Is my data secure on Orceordify?",
+      question: "Is my data secure with Orecordify?",
       answer:
-        "Yes! Orceordify uses robust encryption and secure servers to ensure your data is safe, complying with global data protection standards.",
+        "Absolutely. Orecordify prioritizes data security with end-to-end encryption and compliance with global data protection standards, ensuring your business and customer data is safe.",
     },
     {
-      question: "What features does Orceordify offer?",
+      question: "What features does Orecordify provide?",
       answer:
-        "Key features include automated order tracking, customer profile management, multi-language support, and WhatsApp integration for real-time updates.",
+        "Orecordify offers automated order tracking, customer profile management, real-time WhatsApp updates, multi-language support, and the ability to manage orders from a clean, intuitive dashboard.",
     },
     {
-      question: "Is there a free trial available?",
+      question: "Is there a free plan or trial available?",
       answer:
-        "Yes, we offer a free trial so you can explore Orceordify’s features before committing to a subscription plan.",
+        "Yes, Orecordify provides a free plan with up to 10 orders. This allows you to explore key features before upgrading to a premium plan for additional orders and advanced features.",
     },
     {
-      question: "What happens if I exceed 10 orders on the free plan?",
+      question: "What happens if I exceed the free plan order limit?",
       answer:
-        "If your account exceeds 10 orders, you will receive a prompt to upgrade to a premium plan to continue accessing all features.",
+        "If your account exceeds 10 orders, you will be prompted to upgrade to one of our premium plans to continue managing new orders seamlessly.",
     },
     {
-      question: "How do I get started with Orceordify?",
+      question: "How do I get started with Orecordify?",
       answer:
-        "Sign up for an account, connect your WhatsApp business number, and start managing your customer orders seamlessly!",
+        "Simply sign up for an account, connect your WhatsApp business number, and start tracking and managing your customer orders effortlessly.",
     },
     {
-      question: "Where can I contact support?",
+      question: "Where can I get support?",
       answer:
-        "You can reach our support team at support@orceordify.com or use the live chat option on our website.",
+        "Our support team is ready to assist you! Reach out via email at support@orecordify.com or use the live chat option on our website.",
     },
   ];
 

@@ -1,68 +1,89 @@
-export default function Policy() {
+export default function PrivacyPolicy() {
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Privacy Policy</h1>
+      <h1 className="text-2xl font-bold text-gray-800">Privacy Policy for Orecordify</h1>
       <div className="bg-white shadow rounded-lg p-6 space-y-4">
-        <section className="bg-[#F5F5DC]">
+        <section className=" p-4 rounded-md">
           <h2 className="text-xl font-semibold mb-2">1. Information We Collect</h2>
-          <p>
-            Orecordfy collects the following types of information to provide its services:
-          </p>
+          <h3 className="font-semibold">1.1 Personal Information</h3>
           <ul className="list-disc list-inside">
-            <li>User account details: name, email address, and phone number.</li>
-            <li>Order data, including customer names, order details, and timestamps.</li>
-            <li>Technical data, such as device information, browser type, and usage logs.</li>
+            <li>Create an account: name, email address, phone number, business name.</li>
+            <li>Interact with customer support.</li>
+          </ul>
+          <h3 className="font-semibold">1.2 Business and App Usage Data</h3>
+          <ul className="list-disc list-inside">
+            <li>Inventory details: item names, SKU, quantity, and pricing.</li>
+            <li>Customer information: names, contact details, and transaction history.</li>
+            <li>Order details: order ID, product names, quantities, and status.</li>
+            <li>Analytics data: revenue, order volume, and customer trends.</li>
+          </ul>
+          <h3 className="font-semibold">1.3 Automatically Collected Data</h3>
+          <ul className="list-disc list-inside">
+            <li>Device information: IP address, browser type, operating system.</li>
+            <li>App usage metrics: feature usage, session duration.</li>
           </ul>
         </section>
-        <section className="bg-[#F5F5DC]">
+        <section className=" p-4 rounded-md">
           <h2 className="text-xl font-semibold mb-2">2. How We Use Your Information</h2>
-          <p>
-            The information collected is used to:
-          </p>
+          <h3 className="font-semibold">2.1 To Provide and Improve Services</h3>
           <ul className="list-disc list-inside">
-            <li>Provide and maintain the Orecordfy service, including order tracking and management.</li>
-            <li>Enhance user experience and improve our platform features.</li>
-            <li>Send important notifications, updates, and support communications.</li>
+            <li>Facilitate app functionality like inventory and order management.</li>
+            <li>Enhance app performance based on user behavior and feedback.</li>
+          </ul>
+          <h3 className="font-semibold">2.2 Communication</h3>
+          <ul className="list-disc list-inside">
+            <li>Send notifications for order updates and low stock alerts.</li>
+            <li>Respond to support requests and provide assistance.</li>
+          </ul>
+          <h3 className="font-semibold">2.3 Security and Compliance</h3>
+          <ul className="list-disc list-inside">
+            <li>Protect data through encryption and secure hosting.</li>
+            <li>Comply with legal and regulatory requirements.</li>
           </ul>
         </section>
-        <section className="bg-[#F5F5DC]">
-          <h2 className="text-xl font-semibold mb-2">3. Sharing of Information</h2>
+        <section className=" p-4 rounded-md">
+          <h2 className="text-xl font-semibold mb-2">3. Data Sharing and Disclosure</h2>
+          <h3 className="font-semibold">3.1 Third-Party Services</h3>
           <p>
-            Your information will not be sold or shared with third parties, except in the following situations:
+            Trusted third-party services may assist with hosting, analytics, and communication.
           </p>
-          <ul className="list-disc list-inside">
-            <li>With service providers assisting in the operation of our platform.</li>
-            <li>To comply with legal obligations or respond to lawful requests from authorities.</li>
-          </ul>
+          <h3 className="font-semibold">3.2 Legal Obligations</h3>
+          <p>
+            We may disclose information to comply with laws, prevent fraud, or ensure user safety.
+          </p>
         </section>
-        <section className="bg-[#F5F5DC]">
+        <section className=" p-4 rounded-md">
           <h2 className="text-xl font-semibold mb-2">4. Data Security</h2>
           <p>
-            We employ industry-standard security measures to protect your information from unauthorized access, loss, or misuse. However, no system is completely secure, and users should take precautions when sharing data online.
+            Security measures include encryption, system updates, and access restrictions.
+            However, no system is completely secure. Please secure your account credentials.
           </p>
         </section>
-        <section className="bg-[#F5F5DC]">
-          <h2 className="text-xl font-semibold mb-2">5. Retention of Data</h2>
+        <section className=" p-4 rounded-md">
+          <h2 className="text-xl font-semibold mb-2">5. Your Rights</h2>
+          <ul className="list-disc list-inside">
+            <li>Access and correct your data.</li>
+            <li>Export data like inventory, orders, and customers.</li>
+            <li>Request account and data deletion.</li>
+          </ul>
+        </section>
+        <section className=" p-4 rounded-md">
+          <h2 className="text-xl font-semibold mb-2">6. Cookies and Tracking Technologies</h2>
           <p>
-            We retain your information for as long as necessary to provide the Orecordfy service or as required by applicable laws. You can request data deletion by contacting our support team.
+            We use cookies for session management and analytics. Adjust your preferences via browser settings.
           </p>
         </section>
-        <section className="bg-[#F5F5DC]">
-          <h2 className="text-xl font-semibold mb-2">6. Your Rights</h2>
+        <section className=" p-4 rounded-md">
+          <h2 className="text-xl font-semibold mb-2">7. Changes to This Privacy Policy</h2>
           <p>
-            You have the right to access, update, or delete your personal information. To exercise these rights, please contact us at: <strong>support@orecordfy.com</strong>.
+            Updates will be posted here with a revised effective date. Continued use of the app constitutes acceptance.
           </p>
         </section>
-        <section className="bg-[#F5F5DC]">
-          <h2 className="text-xl font-semibold mb-2">7. Changes to This Policy</h2>
-          <p>
-            We may update this Privacy Policy to reflect changes in our practices or legal requirements. Any updates will be posted on this page, and significant changes may be communicated directly to you.
-          </p>
-        </section>
-        <section className="bg-[#F5F5DC]">
+        <section className=" p-4 rounded-md">
           <h2 className="text-xl font-semibold mb-2">8. Contact Us</h2>
           <p>
-            If you have any questions or concerns about this Privacy Policy, please contact us at: <strong>support@orecordfy.com</strong>.
+            If you have questions or concerns, contact us at:
+            <strong> support@orecordify.com</strong>
           </p>
         </section>
       </div>
