@@ -1,63 +1,67 @@
-import React from "react"; 
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import React, { useState } from "react";
+import { Accordion, AccordionItem } from "@/components/ui/accordion";
 
-const FAQ = () => {
-  const faqs = [
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+const FAQ: React.FC = () => {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const toggleFAQ = (index: number) => {
+    setActiveIndex(activeIndex === index ? null : index);
+  };
+
+  const faqs: FAQItem[] = [
     {
       question: "What is Orecordify?",
       answer:
-        "Orecordify is a SaaS platform tailored for businesses to manage and track customer orders directly from WhatsApp. It simplifies customer management and order tracking in a centralized dashboard.",
+        "Orecordify is a SaaS application designed to streamline inventory management, order processing, customer management, and analytics for small to medium-sized businesses."
     },
     {
-      question: "Who can use Orecordify?",
+      question: "How does Orecordify help with inventory management?",
       answer:
-        "Orecordify is perfect for small and medium-sized businesses, solo entrepreneurs, and online retailers who use WhatsApp for sales and want to streamline their operations.",
+        "Orecordify allows businesses to keep track of their stock levels, automate inventory updates, and receive alerts when stock is low, ensuring efficient inventory management."
     },
     {
-      question: "How does Orecordify integrate with WhatsApp?",
+      question: "What are the key features of Orecordify?",
       answer:
-        "With WhatsApp API integration, Orecordify collects customer details, order information, and communication history automatically. This ensures all data is accessible in one place for easy management.",
+        "Key features include inventory management, order processing, customer management, analytics, and subscription-based access."
     },
     {
-      question: "Is my data secure with Orecordify?",
+      question: "Is Orecordify accessible from anywhere?",
       answer:
-        "Absolutely. Orecordify prioritizes data security with end-to-end encryption and compliance with global data protection standards, ensuring your business and customer data is safe.",
+        "Yes, Orecordify is accessible from any location with an internet connection, allowing you to manage your business operations on the go."
     },
     {
-      question: "What features does Orecordify provide?",
+      question: "What is the current pricing model for Orecordify?",
       answer:
-        "Orecordify offers automated order tracking, customer profile management, real-time WhatsApp updates, multi-language support, and the ability to manage orders from a clean, intuitive dashboard.",
+        "Currently, Orecordify is free to use. However, there is a donation button available for those who wish to support the project. In the future, there will be a subscription plan available at $10 per month."
     },
     {
-      question: "Is there a free plan or trial available?",
+      question: "How can I contact support for Orecordify?",
       answer:
-        "Yes, Orecordify provides a free plan with up to 10 orders. This allows you to explore key features before upgrading to a premium plan for additional orders and advanced features.",
-    },
-    {
-      question: "What happens if I exceed the free plan order limit?",
-      answer:
-        "If your account exceeds 10 orders, you will be prompted to upgrade to one of our premium plans to continue managing new orders seamlessly.",
-    },
-    {
-      question: "How do I get started with Orecordify?",
-      answer:
-        "Simply sign up for an account, connect your WhatsApp business number, and start tracking and managing your customer orders effortlessly.",
-    },
-    {
-      question: "Where can I get support?",
-      answer:
-        "Our support team is ready to assist you! Reach out via email at support@orecordify.com or use the live chat option on our website.",
-    },
+        "For support, you can reach out to our customer service team via email or through the contact form on our website."
+    }
   ];
 
   return (
-    <div className="max-w-4xl mx-auto my-10 p-6 bg-white shadow rounded-lg">
-      <h2 className="text-2xl font-bold mb-4 text-center">Frequently Asked Questions</h2>
-      <Accordion type="single" collapsible className="space-y-4">
+    <div className="max-w-3xl mx-auto p-6 shadow-lg rounded-lg">
+      <h2 className="text-3xl font-bold text-center mb-6">Frequently Asked Questions</h2>
+      <Accordion type="single" className="space-y-4">
         {faqs.map((faq, index) => (
-          <AccordionItem key={index} value={`faq-${index}`}>
-            <AccordionTrigger>{faq.question}</AccordionTrigger>
-            <AccordionContent>{faq.answer}</AccordionContent>
+          <AccordionItem value="" key={index} className="border rounded-lg">
+            <div
+              onClick={() => toggleFAQ(index)}
+              className="cursor-pointer p-4 flex justify-between items-center bg-[#fafada]  hover:bg-gray-50 transition duration-200"
+            >
+              <span className="font-medium text-lg">{faq.question}</span>
+              <span>{activeIndex === index ? "-" : "+"}</span>
+            </div>
+            {activeIndex === index && (
+              <div className="p-4 bg-gray-50 text-gray-700">{faq.answer}</div>
+            )}
           </AccordionItem>
         ))}
       </Accordion>
