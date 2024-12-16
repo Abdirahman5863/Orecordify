@@ -20,6 +20,7 @@ import FAQ from '@/components/Faq';
 
 
 
+
 export default function Home() {
 
   return (
@@ -52,8 +53,8 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <Link href="/admin" className="bg-green-500 text-white px-8 py-3 rounded-full font-semibold text-lg hover:bg-green-600 transition duration-300">
-              Start Free - Maximize Your Productivity Now!
+             <Link href="/admin" >
+             <Button variant="default" className="bg-green-500 text-white hover:bg-green-600 text-md focus:ring-green-400 px-4 py-5 font-bold"> Start Free - Maximize Your Productivity Now!</Button>
             </Link>
           </motion.div>
         </section>
