@@ -4,7 +4,7 @@ const features = [
   {
     title: "Inventory Management",
     description: "Easily track and manage your inventory with real-time updates and alerts.",
-    image: "/inventory.png",
+    image: "/inventorys.png",
   },
   {
     title: "Order Processing",
@@ -14,17 +14,17 @@ const features = [
   {
     title: "Customer Management",
     description: "Keep track of customer information and order history in one centralized location.",
-    image: "/customer.png",
+    image: "/customerss.png",
   },
   {
     title: "Analytics Dashboard",
     description: "Gain valuable insights into your business performance with our comprehensive analytics.",
-    image: "/anlytic.png",
+    image: "/analytics.png",
   },
   {
     title: "Notes Taking",
     description: "Take notes and keep track of important information with our easy-to-use note-taking feature.",
-    image: "/notion.png",
+    image: "/notes.png",
   },
 ];
 
