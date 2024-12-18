@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 import { Providers } from '@/components/Providers';
 import Appbar from '@/components/Appbar';
-import { FaTiktok,FaInstagram } from "react-icons/fa";
+import { FaTiktok, FaInstagram } from "react-icons/fa";
 
 
 import { motion } from 'framer-motion'
@@ -14,8 +14,6 @@ import { motion } from 'framer-motion'
 
 import FeaturesAndPricing from '@/components/features-&-pricing';
 import FAQ from '@/components/Faq';
-
-
 
 
 
@@ -53,8 +51,11 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-             <Link href="/admin" >
-             <Button variant="default" className="bg-green-500 text-white hover:bg-green-600 text-md focus:ring-green-400 px-4 py-5 font-bold"> Start Free - Maximize Your Productivity Now!</Button>
+            <Link href="/admin">
+            <Button className="bg-green-500 text-white px-8 py-3 rounded-full font-semibold text-lg hover:bg-green-600 transition duration-300">  Start Free - Maximize Your Productivity Now!
+            
+
+            </Button>
             </Link>
           </motion.div>
         </section>
@@ -100,17 +101,17 @@ export default function Home() {
       <footer className="bg-[#fafada] py-8">
         <div className="container mx-auto px-6">
           <div className="flex justify-center space-x-6 mb-4">
-         <div>
-          <ul className="flex space-x-4">
-            
-          <Link href="https://www.tiktok.com/@orecordify">
-          <FaTiktok className="w-6 h-6 text-gray-600 hover:text-gray-800" /></Link> 
-          <Link href="https://www.instagram.com/Orecordify"> 
-            
-            <FaInstagram className="w-6 h-6 text-gray-600 hover:text-gray-800" />
-          </Link>
-            </ul>
-         </div>
+            <div>
+              <ul className="flex space-x-4">
+
+                <Link href="https://www.tiktok.com/@orecordify">
+                  <FaTiktok className="w-6 h-6 text-gray-600 hover:text-gray-800" /></Link>
+                <Link href="https://www.instagram.com/Orecordify">
+
+                  <FaInstagram className="w-6 h-6 text-gray-600 hover:text-gray-800" />
+                </Link>
+              </ul>
+            </div>
           </div>
           <div className="text-center">
             <p className="text-green-400">&copy; 2024 Orecordify. All rights reserved.</p>
