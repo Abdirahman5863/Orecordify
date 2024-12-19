@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 // import { prisma } from '@/lib/prismaClient';
-import { getAuth, currentUser } from '@clerk/nextjs/server';
+import { getAuth} from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prismaClient';
 
 interface OrderRequestBody {
@@ -46,37 +46,27 @@ export async function GET(request: NextRequest) {
 
 // Create a new order
 export async function POST(request: NextRequest) {
-  const { userId } = getAuth(request);
-
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
     const body = await request.json() as OrderRequestBody;
     const { customerId, customerName, status, items, totalAmount } = body;
-
-    if (!customerId) {
-      return NextResponse.json({ error: 'Customer ID is required' }, { status: 400 });
+    const { userId } = getAuth(request);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+
+    // if (!customerId) {
+    //   return NextResponse.json({ error: 'Customer ID is required' }, { status: 400 });
+    // }
+
     // Ensure the user exists in your database
-    let dbUser = await prisma.user.findUnique({
+    const  dbUser = await prisma.user.findUnique({
       where: { id: userId },
     });
 
+ 
     if (!dbUser) {
-      const user = await currentUser();
-      if (!user) throw new Error('User not found in Clerk');
-
-      dbUser = await prisma.user.create({
-        data: {
-          id: userId,
-          firstName: user.firstName || '',
-          lastName: user.lastName || '',
-          email: user.emailAddresses[0]?.emailAddress || '',
-        },
-      });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Create or update the customer
@@ -91,19 +81,21 @@ export async function POST(request: NextRequest) {
         category:'personal',
         priority:'medium',
         tags:[],
-        userId: dbUser.id,
+        userId:dbUser.id,
       },
     });
 
     // Generate a new order number
-    const orderCount = await prisma.order.count();
-    const orderNumber = `OD${String(orderCount + 1).padStart(4, '0')}`;
+    const orderCount = await prisma.order.count({
+      where: {userId:dbUser.id },
+    });
+    const orderNumber = `OD:${String(orderCount + 1).padStart(4, '0')}`;
 
     // Validate inventory and update quantities
     const updatedItems = [];
     for (const item of items) {
       const inventoryItem = await prisma.inventoryItem.findFirst({
-        where: { name: item.name, userId: dbUser.id },
+        where: { name: item.name, userId: dbUser?.id },
       });
 
       if (!inventoryItem) {
@@ -145,7 +137,7 @@ export async function POST(request: NextRequest) {
         totalAmount,
         status,
         paymentStatus: 'pending',
-        userId: dbUser.id,
+        userId:dbUser.id,
         items: {
           create: updatedItems, // Use updated inventory references
         },

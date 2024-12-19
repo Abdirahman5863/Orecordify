@@ -1,7 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-// import { prisma } from '@/lib/prismaClient';
-import { getAuth } from '@clerk/nextjs/server';
-import { prisma } from '@/lib/prismaClient';
+import { NextRequest, NextResponse } from "next/server";
+import { getAuth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prismaClient";
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,11 +18,11 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
-    const type = searchParams.get('type');
-    const category = searchParams.get('category');
-    const priority = searchParams.get('priority');
-    const tag = searchParams.get('tag');
+    const status = searchParams.get("status");
+    const type = searchParams.get("type");
+    const category = searchParams.get("category");
+    const priority = searchParams.get("priority");
+    const tag = searchParams.get("tag");
 
     const customers = await prisma.customer.findMany({
       where: {
@@ -35,18 +34,18 @@ export async function GET(request: NextRequest) {
         ...(tag && { tags: { has: tag } }),
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
       include: {
         notes: {
           orderBy: {
-            createdAt: 'desc',
+            createdAt: "desc",
           },
           take: 1,
         },
         orders: {
           orderBy: {
-            createdAt: 'desc',
+            createdAt: "desc",
           },
           take: 1,
         },
@@ -55,8 +54,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(customers);
   } catch (error) {
-    console.error('Error fetching customers:', error);
-    return NextResponse.json({ error: 'Error fetching customers' }, { status: 500 });
+    console.error("Error fetching customers:", error);
+    return NextResponse.json(
+      { error: "Error fetching customers" },
+      { status: 500 }
+    );
   }
 }
 
@@ -75,13 +77,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Fetch the count of customers for this user
     const customerCount = await prisma.customer.count({
       where: { userId: dbUser.id },
     });
-    const customerId = `CUST-${String(customerCount + 1).padStart(3, '0')}`;
+
+    // Generate customer ID
+    const customerId = `CUST:${String(customerCount + 1).padStart(4, "0")}`;
 
     const body = await request.json();
-    const { name, phone, type = 'regular', category = 'personal', priority, tags = [] } = body;
+    const { name, phone, type = "regular", category = "personal", priority, tags = [] } = body;
 
     const newCustomer = await prisma.customer.create({
       data: {
@@ -98,11 +103,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(newCustomer, { status: 201 });
   } catch (error) {
-    console.error('Error creating customer:', error);
-    if (error === 'P2002') {
-      return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
+    console.error("Error creating customer:", error);
+    if (error === "P2002") {
+      return NextResponse.json({ error: "Customer ID already exists" }, { status: 409 });
     }
-    return NextResponse.json({ error: 'Error creating customer' }, { status: 500 });
+    return NextResponse.json({ error: "Error creating customer" }, { status: 500 });
   }
 }
 
@@ -132,7 +137,10 @@ export async function PUT(request: NextRequest) {
     });
 
     if (!customer) {
-      return NextResponse.json({ error: "Customer not found or unauthorized" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Customer not found or unauthorized" },
+        { status: 404 }
+      );
     }
 
     const updatedCustomer = await prisma.customer.update({
@@ -145,8 +153,11 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(updatedCustomer);
   } catch (error) {
-    console.error('Error updating customer:', error);
-    return NextResponse.json({ error: 'Error updating customer' }, { status: 500 });
+    console.error("Error updating customer:", error);
+    return NextResponse.json(
+      { error: "Error updating customer" },
+      { status: 500 }
+    );
   }
 }
 
@@ -166,10 +177,13 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    const id = searchParams.get("id");
 
     if (!id) {
-      return NextResponse.json({ error: 'Customer ID is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Customer ID is required" },
+        { status: 400 }
+      );
     }
 
     const customer = await prisma.customer.findFirst({
@@ -180,16 +194,22 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (!customer) {
-      return NextResponse.json({ error: "Customer not found or unauthorized" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Customer not found or unauthorized" },
+        { status: 404 }
+      );
     }
 
     await prisma.customer.delete({
       where: { id },
     });
 
-    return NextResponse.json({ message: 'Customer deleted successfully' });
+    return NextResponse.json({ message: "Customer deleted successfully" });
   } catch (error) {
-    console.error('Error deleting customer:', error);
-    return NextResponse.json({ error: 'Error deleting customer' }, { status: 500 });
+    console.error("Error deleting customer:", error);
+    return NextResponse.json(
+      { error: "Error deleting customer" },
+      { status: 500 }
+    );
   }
 }
