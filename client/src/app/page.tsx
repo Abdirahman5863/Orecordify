@@ -52,7 +52,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             <Link href="/admin">
-            <Button className="bg-green-500 text-white px-8 py-3 rounded-full font-semibold text-lg hover:bg-green-600 transition duration-300">  Start Free - Maximize Your Productivity Now!
+            <Button >  Start Free - Maximize Your Productivity Now!
             
 
             </Button>

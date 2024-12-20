@@ -25,7 +25,7 @@ const roboto = Roboto({
 
 export const metadata: Metadata = {
   title: "Orecordify",
-  description: "BEST SMALL TO MEDIUM BUSINESSES PRODUCTIVITY APPLICATION",
+  description: "BEST  PRODUCTIVITY APPLICATION",
 };
 
 export default function RootLayout({

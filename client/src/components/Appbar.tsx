@@ -1,7 +1,7 @@
 import Link from "next/link"
 // import { SigninButton } from "./SiginButton"
 import Image from "next/image"
-import { SignedIn, SignedOut, SignInButton, UserButton} from "@clerk/nextjs"
+import { SignedIn, SignedOut, SignInButton, SignOutButton} from "@clerk/nextjs"
 import { Button } from "./ui/button"
 
 const Appbar = () =>{
@@ -27,7 +27,8 @@ const Appbar = () =>{
         
       </SignedOut>
       <SignedIn>
-        <UserButton/>
+        <Button className="text-white"><SignOutButton/></Button>
+        
       </SignedIn>
           </div>
         </div>
