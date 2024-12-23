@@ -25,7 +25,7 @@ export default function Page() {
             footer: "hidden"
           }
         }}
-        forceRedirectUrl="/dashboard" 
+        forceRedirectUrl="/admin" 
       />
       <p className='mt-2 text-lg text-muted-foreground'>Already have an account? <Link href="/sign-in" className='underline'>Sign in</Link></p>
     </div>
