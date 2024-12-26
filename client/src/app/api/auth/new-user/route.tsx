@@ -34,7 +34,7 @@ export async function GET() {
     return new NextResponse(null, {
       status: 302, // 302 Found - temporary redirect
       headers: {
-        Location: 'https://orecordify-z.vercel.app/api/auth/new-user',
+        Location: 'https://www.orecordify.com/api/auth/new-user',
       },
     });
   }
@@ -43,7 +43,7 @@ export async function GET() {
   return new NextResponse(null, {
     status: 302, // 302 Found - temporary redirect
     headers: {
-      Location: 'https://orecordify-z.vercel.app/admin',
+      Location: 'https://www.orecordify.com/admin',
     },
   });
 
