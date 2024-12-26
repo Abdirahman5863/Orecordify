@@ -34,16 +34,16 @@ export async function POST() {
     return new NextResponse(null, {
       status: 302, // 302 Found - temporary redirect
       headers: {
-        Location: 'https://www.orecordify.com//auth/new-user',
+        Location: 'https://www.orecordify.com/api/auth/new-user',
       },
     });
   }
-  // Perform your Route Handler's logic with the returned user object
+  // Perform your Route Handler's lgic with the returned user object
 
   return new NextResponse(null, {
     status: 302, // 302 Found - temporary redirect
     headers: {
-      Location: 'https://www.orecordify.com/p/admin',
+      Location: 'https://www.orecordify.com/admin',
     },
   });
 
