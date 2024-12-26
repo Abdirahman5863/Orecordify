@@ -1,4 +1,3 @@
-// pages/api/auth/saveUser.ts
 import { NextResponse } from 'next/server';
 import { currentUser, auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prismaClient';
