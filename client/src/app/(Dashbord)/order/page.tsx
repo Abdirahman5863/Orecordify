@@ -82,7 +82,11 @@ export default function OrdersPage() {
       setIsLoading(false);
     }
   };
-
+  const saveUser = async () => { const response = await fetch('/api/auth/newUser', { method: 'GET', });  
+  if (response.ok) { const user = await response.json(); 
+    console.log('User saved:', user); } 
+    else { console.error('Failed to save user'); } 
+  }; useEffect(() => { saveUser(); }, []);;
   const handleDeleteOrder = async (id: string) => {
     try {
       const response = await fetch(`/api/order?id=${id}`, {

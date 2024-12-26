@@ -13,7 +13,15 @@ export default function Dashboard() {
   const [lowStockItems, setLowStockItems] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Fetch stats from the respective endpoints
+  // Fetch stats from the resp
+  
+  const saveUser = async () => { const response = await fetch('/api/auth/new-user', { method: 'GET', });  
+  if (response.ok) { const user = await response.json(); 
+    console.log('User saved:', user); } 
+    else { console.error('Failed to save user'); } 
+  }; useEffect(() => { saveUser(); }, []);;
+
+  // const handleCreateNote = async (newNote: any) => {ective endpoints
   useEffect(() => {
     const fetchStats = async () => {
       try {
