@@ -1,30 +1,26 @@
+// pages/api/auth/saveUser.ts
 import { NextResponse } from 'next/server';
 import { currentUser, auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prismaClient';
 
 export async function GET() {
   try {
-    console.log("Authenticating user...");
     const { userId } = await auth();
     if (!userId) {
-      console.log("User is not authenticated");
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    console.log("Fetching current user information...");
+    // Get user's information
     const user = await currentUser();
     if (!user) {
-      console.log("User does not exist");
       return new NextResponse('User not exist', { status: 404 });
     }
 
-    console.log("Checking if user exists in the database...");
     let dbUser = await prisma.user.findUnique({
       where: { id: user.id },
     });
 
     if (!dbUser) {
-      console.log("User not found in the database. Creating a new user...");
       dbUser = await prisma.user.create({
         data: {
           id: user.id,
@@ -35,24 +31,7 @@ export async function GET() {
       });
     }
 
-    if (!dbUser) {
-      console.log("Redirecting to new user creation endpoint...");
-      return new NextResponse(null, {
-        status: 302, // 302 Found - temporary redirect
-        headers: {
-          Location: 'https://orecordify1.vercel.app/api/auth/new-user',
-        },
-      });
-    }
-
-    console.log("Redirecting to admin dashboard...");
-    return new NextResponse(null, {
-      status: 302, // 302 Found - temporary redirect
-      headers: {
-        Location: 'https://orecordify1.vercel.app/admin',
-      },
-    });
-
+    return NextResponse.json(dbUser, { status: 201 });
   } catch (error) {
     console.error('Error during user creation or retrieval:', error);
     return new NextResponse('Internal Server Error', { status: 500 });

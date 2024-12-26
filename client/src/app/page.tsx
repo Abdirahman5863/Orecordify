@@ -14,6 +14,7 @@ import { motion } from 'framer-motion'
 
 import FeaturesAndPricing from '@/components/features-&-pricing';
 import FAQ from '@/components/Faq';
+import { Users } from 'lucide-react';
 
 
 
@@ -26,7 +27,7 @@ export default function Home() {
       <Appbar />
       {/* Navbar */}
 
-
+<Users />
       {/* Hero Section */}
       <main>
         <section className="container mx-auto px-6 py-16 text-center">
