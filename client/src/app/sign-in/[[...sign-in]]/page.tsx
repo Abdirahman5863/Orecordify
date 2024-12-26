@@ -9,7 +9,7 @@ export default function Page() {
           Create an account
         </h2>
         <p className='mt-2 text-lg text-muted-foreground'>
-          Sign up to get started
+          Sign in to get started
         </p>
       </div>
       <SignIn 
