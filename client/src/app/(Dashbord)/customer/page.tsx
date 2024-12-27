@@ -28,7 +28,11 @@ export default function CustomersPage() {
     fetchCustomers();
   }, []);
   
-
+  const saveUser = async () => { const response = await fetch('/api/auth/new-user', { method: 'GET', });  
+  if (response.ok) { const user = await response.json(); 
+    console.log('User saved:', user); } 
+    else { console.error('Failed to save user'); } 
+  }; useEffect(() => { saveUser(); }, []);;
   const fetchCustomers = async () => {
     try {
       const response = await fetch('/api/customer');

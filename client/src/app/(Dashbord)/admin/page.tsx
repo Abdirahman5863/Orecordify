@@ -6,6 +6,12 @@ import { motion } from 'framer-motion';
 import { Users, ShoppingBag, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 
+const saveUser = async () => 
+  { try { const response = await fetch('/api/auth/saveUser', 
+    { method: 'GET', }); if (response.ok) { const user = await response.json(); 
+      console.log('User saved:', user); } else { console.error('Failed to save user', response.status, response.statusText); } } catch (error)
+   { console.error('Error fetching user:', error); } };
+
 export default function Dashboard() {
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [totalOrders, setTotalOrders] = useState(0);
@@ -14,12 +20,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   // Fetch stats from the resp
+  useEffect(() => { saveUser(); }, []);
   
-  const saveUser = async () => { const response = await fetch('/api/auth/saveUser', { method: 'GET', });  
-  if (response.ok) { const user = await response.json(); 
-    console.log('User saved:', user); } 
-    else { console.error('Failed to save user'); } 
-  }; useEffect(() => { saveUser(); }, []);;
 
   // const handleCreateNote = async (newNote: any) => {ective endpoints
   useEffect(() => {
